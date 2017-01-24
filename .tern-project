@@ -1,0 +1,11 @@
+{
+  "libs": [
+    "underscore",
+    "parse"
+  ],
+  "loadEagerly": [
+    "*/*.js",
+    "*/*/*.js",
+    "*/*/*/*.js"
+  ]
+}
