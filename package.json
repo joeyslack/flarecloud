@@ -1,0 +1,37 @@
+{
+  "name": "flarecloud",
+  "version": "1.0.0",
+  "description": "flare cloud on self hosted parse-server",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/joeyslack/flarecloud.git"
+  },
+  "author": "Joseph Slack, Rudy Wen",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/joeyslack/flarecloud/issues"
+  },
+  "homepage": "https://github.com/joeyslack/flarecloud#readme",
+  "dependencies": {
+    "analytics-node": "^2.1.0",
+    "cluster": "^0.7.7",
+    "dotenv": "^2.0.0",
+    "express": "^4.14.0",
+    "ffprobe": "^1.1.0",
+    "ffprobe-static": "^2.0.0",
+    "fluent-ffmpeg": "^2.1.0",
+    "google-url": "0.0.4",
+    "heroku-node-settings": "^1.0.2",
+    "mailchimp-v3": "^1.0.1",
+    "opbeat": "^3.10.0",
+    "os": "^0.1.1",
+    "parse-dashboard": "^1.0.18",
+    "parse-server": "^2.2.23",
+    "remote-file-size": "^3.0.3",
+    "twilio": "^2.9.1"
+  }
+}
