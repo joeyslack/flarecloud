@@ -4,7 +4,10 @@ var twilioSid = process.env.TWILIO_SID;
 var twilioToken = process.env.TWILIO_TOKEN;
 var twilio = require('twilio')(twilioSid, twilioToken);
 
-var activeTwilioPhoneNumbers = process.env.TWILIO_NUMBERS.split(",");
+var activeTwilioPhoneNumbers = process.env.TWILIO_NUMBERS.split(",").map(function(item) {
+  return item.trim();
+});
+
 var branchKey = process.env.BRANCH_KEY;
 
 var _ = require('../lib/underscore-min.js');
