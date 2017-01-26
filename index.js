@@ -112,7 +112,7 @@ var api = new ParseServer({
   filesAdapter: new S3Adapter(
     process.env.S3_ACCESS_KEY,
     process.env.S3_SECRET_KEY,
-    process.env.S3_BUCKET
+    process.env.S3_BUCKET,
     {
       directAccess: true,
       baseUrl: process.env.S3_BASE_URL,
@@ -148,7 +148,9 @@ app.use(process.env.PARSE_MOUNT || '/parse', api, function(req, res, next) {
 app.use('/dashboard', dashboard);
 
 // Add the Opbeat middleware after regular middleware
-app.use(opbeat.middleware.express());
+if (typeof opbeat !== 'undefined') {
+  app.use(opbeat.middleware.express());
+}
 
 // Custom error handling when in development mode
 if (app.get('env') === 'development') {
