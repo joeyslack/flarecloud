@@ -4,6 +4,7 @@
   "description": "flare cloud on self hosted parse-server",
   "main": "index.js",
   "scripts": {
+    "start": "heroku-node-settings index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
