@@ -87,24 +87,14 @@ var api = new ParseServer({
   push: {
     ios: [
       {
-        pfx: __dirname + '/certs/BunchAppStorePushCertificate.p12',
-        bundleId: 'com.flaremedia.bunch',
+        pfx: __dirname + '/certs/FlareMediaLLCFlareAppAPNSPushCert.p12',
+        bundleId: 'com.flaremedia.flare',
         production: true  // Prod
       },
       {
-        pfx: __dirname + '/certs/BunchFlareMediaDevelopmentPushCertificate.p12',
-        bundleId: 'com.flaremedia.bunch',  
+        pfx: __dirname + '/certs/FlareMediaLLCFlareAppAPNSPushCert_DEV.p12',
+        bundleId: 'com.flaremedia.flare',  
         production: false // Dev
-      },
-      {
-        pfx: __dirname + '/certs/Flare10e9DevelopmentRnDPushCertificate.p12',
-        bundleId: 'co.10e9.flare-rnd',
-        production: false // Dev
-      },
-      {
-        pfx: __dirname + '/certs/Flare10e9DistributionRnDPushCertificate.p12',
-        bundleId: 'co.10e9.flare-rnd',  
-        production: true  // Prod
       }
     ]
   },
