@@ -468,7 +468,7 @@ function incrementCountersForField(field, request)
     return Activity.itemForCounter(field, flare, author, requestUser);
   }).then(function(sendPush) {
     // Don't send push notification if target user is same as the current user (yourself)
-    if (flare.get(_k.flareUserKey) == requestUser[_k.classObjectId])
+    if (flare.get(_k.flareUserKey) == requestUser[_k.classObjectId]) {
       sendPush = false;
     }
 
