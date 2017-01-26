@@ -1,6 +1,5 @@
 var _ = require('../lib/underscore-min.js');
 var _k = require('../class/classConstants.js');
-var Mailchimp = require('../lib/mailchimp.js');
 var Push = require('../utils/push.js');
 var DateUtil = require('../utils/date.js');
 var Utility = require('../utils/utility.js');
