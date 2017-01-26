@@ -36,7 +36,7 @@ var ParseDashboard = require('parse-dashboard');
 var app = express();
 app.set('trust proxy', 'loopback');
 
-if (!process.env.DATABASE_URI && !process.env.MONGOLAB_URI) {
+if (!process.env.DATABASE_URI) {
   throw new Error('You must specify a database path. Bye');
 }
 
@@ -75,7 +75,7 @@ var dashboard = new ParseDashboard({
 
 /* Setup parse server */
 var api = new ParseServer({
-  databaseURI:    process.env.DATABASE_URI        || process.env.MONGOLAB_URI || 'mongodb://localhost:27017',
+  databaseURI:    process.env.DATABASE_URI || 'mongodb://localhost:27017',
   cloud:          __dirname + '/cloud/main.js',
   appId:          process.env.APP_ID,
   masterKey:      process.env.MASTER_KEY,
