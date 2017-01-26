@@ -1,4 +1,4 @@
-var _ = require('cloud/lib/underscore-min.js');
+var _ = require('../lib/underscore-min.js');
 
 //------------------------------------------------------------------------------
 // Public 

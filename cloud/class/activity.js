@@ -1,13 +1,13 @@
-var _ = require('cloud/lib/underscore-min.js');
-var _k = require('cloud/class/classConstants.js');
-var Sms = require('cloud/utils/sms.js');
-var PhoneFormatter = require('cloud/lib/PhoneFormat.js');
-var Push = require('cloud/utils/push.js');
-var InviteClass = require('cloud/class/invite.js');
-var Follower = require('cloud/api/follower.js');
-var GroupMembership = require('cloud/class/groupMembership.js');
-var Utility = require('cloud/utils/utility.js');
-var Block = require('cloud/api/block.js');
+var _ = require('../lib/underscore-min.js');
+var _k = require('../class/classConstants.js');
+var Sms = require('../utils/sms.js');
+var PhoneFormatter = require('../lib/PhoneFormat.js');
+var Push = require('../utils/push.js');
+var InviteClass = require('../class/invite.js');
+var Follower = require('../api/follower.js');
+var GroupMembership = require('../class/groupMembership.js');
+var Utility = require('../utils/utility.js');
+var Block = require('../api/block.js');
 
 //------------------------------------------------------------------------------
 // Local 

@@ -1,10 +1,10 @@
-var _ = require('cloud/lib/underscore-min.js');
-var _k = require('cloud/class/classConstants.js');
-var Group = require('cloud/class/group.js');
-var Following = require('cloud/api/following.js');
-var Block = require('cloud/api/block.js');
-var Flare = require('cloud/class/flare.js');
-var User = require('cloud/class/user.js');
+var _ = require('../lib/underscore-min.js');
+var _k = require('../class/classConstants.js');
+var Group = require('../class/group.js');
+var Following = require('../api/following.js');
+var Block = require('../api/block.js');
+var Flare = require('../class/flare.js');
+var User = require('../class/user.js');
 
 var allStoriesFunctions = [
   fetchUserStoriesForUser,

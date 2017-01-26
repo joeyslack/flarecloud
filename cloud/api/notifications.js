@@ -1,8 +1,8 @@
-var _ = require('cloud/lib/underscore-min.js');
-var _k = require('cloud/class/classConstants.js');
-var DateUtil = require('cloud/utils/date.js');
-var Following = require('cloud/api/following.js');
-var Block = require('cloud/api/block.js');
+var _ = require('../lib/underscore-min.js');
+var _k = require('../class/classConstants.js');
+var DateUtil = require('../utils/date.js');
+var Following = require('../api/following.js');
+var Block = require('../api/block.js');
 
 //------------------------------------------------------------------------------
 // Local 

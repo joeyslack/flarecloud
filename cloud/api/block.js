@@ -1,5 +1,5 @@
 var _this = this;
-var _k = require('cloud/class/classConstants.js');
+var _k = require('../class/classConstants.js');
 
 //------------------------------------------------------------------------------
 // Public 

@@ -1,7 +1,7 @@
-var _ = require('cloud/lib/underscore-min.js');
-var _k = require('cloud/class/classConstants.js');
-var Sms = require('cloud/utils/sms.js'); 
-var PhoneFormatter = require('cloud/lib/PhoneFormat.js');
+var _ = require('../lib/underscore-min.js');
+var _k = require('../class/classConstants.js');
+var Sms = require('../utils/sms.js'); 
+var PhoneFormatter = require('../lib/PhoneFormat.js');
 
 //------------------------------------------------------------------------------
 // Local Defines 

@@ -1,8 +1,8 @@
-var _ = require('cloud/lib/underscore-min.js');
-var _k = require('cloud/class/classConstants.js');
-var ActivityClass = require('cloud/class/activity.js');
-var UserClass = require('cloud/class/user.js');
-var Push = require('cloud/utils/push.js');
+var _ = require('../lib/underscore-min.js');
+var _k = require('../class/classConstants.js');
+var ActivityClass = require('../class/activity.js');
+var UserClass = require('../class/user.js');
+var Push = require('../utils/push.js');
 
 //------------------------------------------------------------------------------
 // Local Defines 

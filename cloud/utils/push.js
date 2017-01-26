@@ -1,6 +1,6 @@
-var _ = require('cloud/lib/underscore-min.js');
-var _k = require('cloud/class/classConstants.js');
-var NameUtil = require('cloud/utils/name.js');
+var _ = require('../lib/underscore-min.js');
+var _k = require('../class/classConstants.js');
+var NameUtil = require('../utils/name.js');
 
 //------------------------------------------------------------------------------
 // Public 

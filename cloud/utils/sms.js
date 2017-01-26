@@ -7,12 +7,12 @@ var twilio = require('twilio')(twilioSid, twilioToken);
 var activeTwilioPhoneNumbers = process.env.TWILIO_NUMBERS.split(",");
 var branchKey = process.env.BRANCH_KEY;
 
-var _ = require('cloud/lib/underscore-min.js');
-var _k = require('cloud/class/classConstants.js');
-var Utility = require('cloud/utils/utility.js');
-var Analytics = require('cloud/lib/analytics.js');
-var NameUtil = require('cloud/utils/name.js');
-var PhoneFormatter = require('cloud/lib/PhoneFormat.js');
+var _ = require('../lib/underscore-min.js');
+var _k = require('../class/classConstants.js');
+var Utility = require('../utils/utility.js');
+var Analytics = require('../lib/analytics.js');
+var NameUtil = require('../utils/name.js');
+var PhoneFormatter = require('../lib/PhoneFormat.js');
 
 //------------------------------------------------------------------------------
 // Public 

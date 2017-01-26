@@ -1,7 +1,7 @@
 var _this = this;
-var _k = require('cloud/class/classConstants.js');
-var Block = require('cloud/api/block.js');
-var Utility = require('cloud/utils/utility.js');
+var _k = require('../class/classConstants.js');
+var Block = require('../api/block.js');
+var Utility = require('../utils/utility.js');
 
 //------------------------------------------------------------------------------
 // Public 

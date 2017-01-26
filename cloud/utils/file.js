@@ -1,7 +1,7 @@
-var _ = require('cloud/lib/underscore-min.js');
-var _k = require('cloud/class/classConstants.js');
-var DateUtil = require('cloud/utils/date.js');
-var Utility = require('cloud/utils/utility.js');
+var _ = require('../lib/underscore-min.js');
+var _k = require('../class/classConstants.js');
+var DateUtil = require('../utils/date.js');
+var Utility = require('../utils/utility.js');
 
 //------------------------------------------------------------------------------
 // Cloud Code
