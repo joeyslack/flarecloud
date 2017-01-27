@@ -1,0 +1,1 @@
+web: node_modules/.bin/heroku-node-settings index.js
