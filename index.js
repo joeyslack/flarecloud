@@ -29,10 +29,6 @@ var ParseServer = require('parse-server').ParseServer;
 var S3Adapter = require('parse-server').S3Adapter;
 var ParseDashboard = require('parse-dashboard');
 
-//var LoggerAdapter = require('parse-server/lib/Adapters/Logger/LoggerAdapter.js').LoggerAdapter;
-//var winston = require('winston');
-//winston.level = 'warn';
-
 var app = express();
 app.set('trust proxy', 'loopback');
 
@@ -56,7 +52,7 @@ var dashboard = new ParseDashboard({
       "javascriptKey":  process.env.JAVASCRIPT_KEY,
       "restKey":        process.env.REST_KEY,
       "appName":        process.env.APP_NAME,
-      "iconName":       "favicon@2x.png", 
+      "iconName":       "flare-icon@2x.png", 
       "production":     true //It looks like this flag is broken, force off... app.get('env') === "development" ? false : true
     }
   ],
