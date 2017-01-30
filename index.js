@@ -3,9 +3,9 @@ require('dotenv').config({silent: true});
 
 // Opbeat init
 var opbeat = require('opbeat').start({
-  appId: OPBEAT_APP_ID,
-  organizationId: OPBEAT_ORG_ID,
-  secretToken: OPBEAT_SECRET
+  appId: process.env.OPBEAT_APP_ID,
+  organizationId: process.env.OPBEAT_ORG_ID,
+  secretToken: process.env.OPBEAT_SECRET
 });
 
 const cluster = require('cluster');
