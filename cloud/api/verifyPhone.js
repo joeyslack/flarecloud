@@ -19,9 +19,6 @@ var secretPasswordToken = 'FlareBears';
 // @params response - 
 //------------------------------------------------------------------------------
 Parse.Cloud.define("sendVerificationCode", function(request,response) {
-
-  Parse.Cloud.useMasterKey();
-
   var currentUser = request.user;
   var phoneNumber = request.params.phoneNumber;
 	
@@ -30,13 +27,13 @@ Parse.Cloud.define("sendVerificationCode", function(request,response) {
   var userQuery = new Parse.Query(Parse.User);
 	userQuery.equalTo(_k.userUsernameKey, phoneNumber + "");
 	
-  userQuery.first().then(function(user) {
+  userQuery.first({useMasterKey: true}).then(function(user) {
 		var min = 1000; var max = 9999;
 		var num = Math.floor(Math.random() * (max - min + 1)) + min;
 
 		if (user) {
 			user.setPassword(secretPasswordToken + num);
-			user.save().then(function() {
+			user.save(null, {useMasterKey: true}).then(function() {
 				return Sms.sendActivationCode(phoneNumber, num);
 			}).then(function() {
 				response.success();
@@ -48,7 +45,7 @@ Parse.Cloud.define("sendVerificationCode", function(request,response) {
 			newUser.setUsername(phoneNumber);
 			newUser.setPassword(secretPasswordToken + num);
 			newUser.setACL({});
-			newUser.save().then(function(a) {
+			newUser.save(null, {useMasterKey: true}).then(function(a) {
 				return Sms.sendActivationCode(phoneNumber, num);
 			}).then(function() {
 				response.success();
@@ -69,14 +66,13 @@ Parse.Cloud.define("sendVerificationCode", function(request,response) {
 // @params response - 
 //------------------------------------------------------------------------------
 Parse.Cloud.define("verifyCode", function(request, response) {
-	Parse.Cloud.useMasterKey();
-
-  var verificationCode = request.params.verificationCode;
+  	var verificationCode = request.params.verificationCode;
 	var phoneNumber = request.params.phoneNumber;
 
 	if (phoneNumber && verificationCode) {
 		Parse.User.logIn(phoneNumber, secretPasswordToken + verificationCode).then(function (user) {
-      return user.destroy();
+      	
+      	return user.destroy({useMasterKey: true});
     }).then(function() {
 			response.success();
 		}, function (err) {

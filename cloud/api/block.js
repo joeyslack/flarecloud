@@ -16,7 +16,7 @@ exports.getBlockedUsers = function(requestUser, activeFriends)
 
   var usersQuery = blockedUsersQuery(requestUser);
 
-  usersQuery.find().then(function(blockedUsers) {
+  usersQuery.find({useMasterKey: true}).then(function(blockedUsers) {
     promise.resolve(blockedUsers, activeFriends);
   }, function(error) {
     console.log("Error: getBlockedUsers: " + error.message);

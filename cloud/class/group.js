@@ -29,7 +29,7 @@ Parse.Cloud.define("getSuggestedGroups", function(request, response) {
   //Public, Catz, Puppy Dogs, Netflix & Chill
   query.containedIn("objectId", suggestedGroups);
   query.include(_k.groupCreatedByKey); //include the user objects
-  query.find().then(function(groups) {
+  query.find({useMasterKey: true}).then(function(groups) {
     for (var i=0; i<groups.length; i++) {
       groupData[suggestedGroups.indexOf(groups[i].id)] = groups[i];
     }
@@ -63,7 +63,7 @@ Parse.Cloud.define("deleteGroup", function(request, response) {
 
     //3. Delete the actual group
     promise = promise.then(function() {
-      return group.destroy();
+      return group.destroy({useMasterKey: true});
     });
 
     return promise;
@@ -85,7 +85,7 @@ exports.getGroupsUserFollows = function(requestUser) {
 
   var groupMembershipsQuery = GroupMembership.forUserQuery(requestUser);
 
-  groupMembershipsQuery.find().then(function(groupMemberships) {
+  groupMembershipsQuery.find({useMasterKey: true}).then(function(groupMemberships) {
     var groups = [];
     _.each(groupMemberships, function(groupMembership) {
       var groupObject = groupMembership.get(_k.groupMembershipGroupKey);
@@ -118,7 +118,7 @@ exports.getGroupWithId = function(id)
   var query = new Parse.Query(GroupClass);
   query.equalTo(_k.classObjectId, id);
 
-  query.first().then(function(group){
+  query.first({useMasterKey: true}).then(function(group){
     promise.resolve(group);
   }, function(error) {
     promise.reject();

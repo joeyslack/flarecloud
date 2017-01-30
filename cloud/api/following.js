@@ -18,7 +18,7 @@ exports.getFollowingUsers = function(requestUser) {
 
   var followingUsersQuery = _this.usersQuery(requestUser);
 
-  followingUsersQuery.find().then(function(followingUsers) {
+  followingUsersQuery.find({useMasterKey: true}).then(function(followingUsers) {
     promise.resolve(followingUsers);
   },function(error) {
     promise.reject(error);
@@ -42,7 +42,7 @@ exports.getFollowingExcludeUsersWhoIBlock = function(requestUser) {
   var blockedQuery = Block.thisUserBlockActivityQuery(requestUser);
   followingUsersQuery.doesNotMatchKeyInQuery(_k.classObjectId, _k.activityToUserIdStringKey, blockedQuery);
 
-  followingUsersQuery.find().then(function(followingUsers) {
+  followingUsersQuery.find({useMasterKey: true}).then(function(followingUsers) {
     promise.resolve(followingUsers);
   },function(error) {
     promise.reject(error);
@@ -66,7 +66,7 @@ exports.getFollowingExcludeUsersWhoBlockMe = function(requestUser) {
   var blockedQuery = Block.blockThisUserActivityQuery(requestUser);
   followingUsersQuery.doesNotMatchKeyInQuery(_k.classObjectId, _k.activityFromUserIdStringKey, blockedQuery);
 
-  followingUsersQuery.find().then(function(followingUsers) {
+  followingUsersQuery.find({useMasterKey: true}).then(function(followingUsers) {
     promise.resolve(followingUsers);
   },function(error) {
     promise.reject(error);
@@ -91,16 +91,15 @@ exports.getFollowingExcludeUsersWhoBlockMeAndWhoIBlock = function(requestUser) {
   var blockedQuery = Block.blockThisUserActivityQuery(requestUser);
   followingUsersQuery.doesNotMatchKeyInQuery(_k.classObjectId, _k.activityFromUserIdStringKey, blockedQuery);
 
-  followingUsersQuery.find().then(function(followingUsersWhoDoNotBlockMe) {
+  followingUsersQuery.find({useMasterKey: true}).then(function(followingUsersWhoDoNotBlockMe) {
     usersFollowingMeWhoDoNotBlockMe = followingUsersWhoDoNotBlockMe;
-
     var usersFollowingMeWhoIBlockQuery = _this.usersQuery(requestUser);
 
-   // Exclude Users who have blocked this user
-   var whoIblockedQuery = Block.thisUserBlockActivityQuery(requestUser);
-   usersFollowingMeWhoIBlockQuery.doesNotMatchKeyInQuery(_k.classObjectId, _k.activityToUserIdStringKey, whoIblockedQuery);
+    // Exclude Users who have blocked this user
+    var whoIblockedQuery = Block.thisUserBlockActivityQuery(requestUser);
+    usersFollowingMeWhoIBlockQuery.doesNotMatchKeyInQuery(_k.classObjectId, _k.activityToUserIdStringKey, whoIblockedQuery);
 
-   return usersFollowingMeWhoIBlockQuery.find();
+    return usersFollowingMeWhoIBlockQuery.find({useMasterKey: true});
   }).then(function(usersFollowingMeWhoIBlock) {
     var followingUsers = Utility.collectionIntersection(usersFollowingMeWhoIBlock, usersFollowingMeWhoDoNotBlockMe);
     promise.resolve(followingUsers);

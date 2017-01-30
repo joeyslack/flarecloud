@@ -9,6 +9,11 @@ var GroupMembership = require('../class/groupMembership.js');
 var Utility = require('../utils/utility.js');
 var Block = require('../api/block.js');
 
+// Override jobs for now
+Parse.Cloud.job = function() {
+  return true;
+}
+
 //------------------------------------------------------------------------------
 // Local 
 //------------------------------------------------------------------------------
@@ -95,9 +100,6 @@ exports.followUser = function(fromUser, toUser)
     return Parse.Promise.as("Invalid inputs fromUser: " + fromUser + " toUser: " + toUser);
   }
 
-  // Set up to modify user data
-  Parse.Cloud.useMasterKey();
-
   // Query for any invite for the new user, based on the phone number supplied 
   var ActivityClass = Parse.Object.extend(_k.activityTableName);
   var followQuery = new Parse.Query(ActivityClass);
@@ -107,7 +109,7 @@ exports.followUser = function(fromUser, toUser)
   followQuery.equalTo(_k.activityTypeKey, _k.activityTypeFollow);
 
   // Make sure there is only one follow activity fromUser --> toUser
-  followQuery.first().then(function(object) {
+  followQuery.first({useMasterKey: true}).then(function(object) {
     if (_.isUndefined(object)) {
       return saveActivity(_k.activityTypeFollow, fromUser, toUser); 
     } else {
@@ -148,7 +150,7 @@ exports.itemForCounter = function(field, flare, toUser, fromUser)
   activityQuery.equalTo(_k.activityTypeKey, field);
   activityQuery.limit(1000);
 
-  activityQuery.find().then(function(objects) {
+  activityQuery.find({useMasterKey: true}).then(function(objects) {
 
     // Update the object if it exists
     if (objects.length > 0) {
@@ -156,7 +158,7 @@ exports.itemForCounter = function(field, flare, toUser, fromUser)
 
       _.each(objects, function (object) {
           object.increment(_k.activityCountKey);
-          incrementPromises.push(object.save());
+          incrementPromises.push(object.save(null, {useMasterKey: true}));
       });
 
       return Parse.Promise.when(incrementPromises);
@@ -236,9 +238,6 @@ function processNewActivity(payload)
   if (_.isUndefined(payload)) {
     return Parse.Promise.error();
   }
-
-  // Set up to modify user data
-  Parse.Cloud.useMasterKey();
 
   var promise = new Parse.Promise();
   var requestUser;
@@ -338,7 +337,7 @@ function processNewGroupStory (requestUser, type, activityObject, date)
   postQuery.equalTo(_k.classObjectId, postObject.id);
   postQuery.include(_k.flareGroupKey); //include the group object
   
-  postQuery.first().then(function(post){
+  postQuery.first({useMasterKey: true}).then(function(post){
     var group = !_.isUndefined(post) ? post.get(_k.flareGroupKey) : undefined;
     if (!_.isUndefined(group)){ 
       return GroupMembership.sendNotificationToGroup(_k.pushPayloadActivityTypeNewGroupStory, group, post, requestUser);
@@ -370,7 +369,7 @@ function processFollowOrFollowRequest (requestUser, type, activityObject, date)
   var toUser = activityObject.get(_k.activityToUserKey);
 
   // Check for blocking
-  Block.thisUserBlockActivityQuery(toUser).find().then(function(blockedList) {
+  Block.thisUserBlockActivityQuery(toUser).find({useMasterKey: true}).then(function(blockedList) {
     // If block list is found for target follow, see if it matches the request user's id
     if (blockedList) {
       return _.find(blockedList, function(item) {
@@ -416,7 +415,7 @@ function processComment (requestUser, type, activityObject, date)
     mentionedUsers = users;
     var commentActivityQuery = otherCommentActivityForPostQuery(requestUser, post);
 
-    return commentActivityQuery.find();
+    return commentActivityQuery.find({useMasterKey: true});
   }).then(function(commentActivities) {
 
     // Only send comment push notificaiton to comment authors that have not been mentioned
@@ -519,7 +518,7 @@ function processMentionedPhoneNumbers (requestUser, type, activityObject)
   var filteredPhoneNumbers = [];
   var toUsers = [];
 
-  userQuery.find().then(function(users) {
+  userQuery.find({useMasterKey: true}).then(function(users) {
     toUsers = users;
     return saveMentionActivity(content, flare, phoneNumbers, toUsers, fromUser);
   }).then(function(phoneNumbersWithNoActiveUser) {
@@ -571,7 +570,7 @@ function processMentionReceipt(flare, userWhoViewed)
   activityQuery.include(_k.activityFromUserKey);
   activityQuery.limit(1000);
   
-  activityQuery.find().then(function(objects) {
+  activityQuery.find({useMasterKey: true}).then(function(objects) {
 
     // Update the object if it exists
     if (objects.length > 0) {
@@ -606,8 +605,6 @@ function processMentionReceipt(flare, userWhoViewed)
 //------------------------------------------------------------------------------
 function saveMentionActivity(content, flare, phoneNumbers, toUsers, fromUser) 
 {
-  // Set up to modify data
-  Parse.Cloud.useMasterKey();
   var promise = new Parse.Promise();
 
   if (_.isUndefined(toUsers) || toUsers.length === 0) {
@@ -645,9 +642,6 @@ function saveMentionActivity(content, flare, phoneNumbers, toUsers, fromUser)
 //------------------------------------------------------------------------------
 function addActivityWithCounterField (field, flare, toUser, fromUser) 
 {
-  // Set up to modify data
-  Parse.Cloud.useMasterKey();
-
   var promise = new Parse.Promise();
 
   var newCounterActivity;
@@ -663,7 +657,7 @@ function addActivityWithCounterField (field, flare, toUser, fromUser)
   newActivity.set(_k.activityCountKey, 1);
   newActivity.setACL(new Parse.ACL().setPublicReadAccess(true));
 
-  newActivity.save().then(function(activity){
+  newActivity.save(null, {useMasterKey: true}).then(function(activity) {
     newCounterActivity = activity;
 
     // Process views in case we need to send off @mention viewed receipts
@@ -688,9 +682,6 @@ function addActivityWithCounterField (field, flare, toUser, fromUser)
 //------------------------------------------------------------------------------
 var saveActivity = function(type, fromUser, toUser, flare, content, phoneNumber) 
 {   
-  // Set up to modify user data
-  Parse.Cloud.useMasterKey();
-
   var promise = new Parse.Promise();
 
   // Add the mention into the Activity class
@@ -724,7 +715,7 @@ var saveActivity = function(type, fromUser, toUser, flare, content, phoneNumber)
   activityACL.setPublicReadAccess(true);
   activity.setACL(activityACL);
 
-  activity.save().then(function(){
+  activity.save(null, {useMasterKey: true}).then(function(){
     //console.log("fromUser: " + activity.get(_k.activityFromUserIdStringKey) + "toUser: " + activity.get(_k.activityToUserIdStringKey) + "new object created with objectId: " + activity.id);
     promise.resolve();
   },function(error){

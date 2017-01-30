@@ -15,9 +15,6 @@ var User = require('../class/user.js');
 // @params response -
 //------------------------------------------------------------------------------
 Parse.Cloud.define("addMembersToGroup", function(request,response) {
-
-  Parse.Cloud.useMasterKey();
-
   var currentUser = request.user;
   var adminId = request.params.groupAdminUserId;
   var groupId = request.params.groupId;
@@ -111,7 +108,7 @@ Parse.Cloud.define("addMembersToGroup", function(request,response) {
       addMemberUsers.push(currentUser);
     }
 
-    return _this.areUsersInGroupQuery(addMemberUsers, group).find();
+    return _this.areUsersInGroupQuery(addMemberUsers, group).find({useMasterKey: true});
   }).then(function(newGroupMemberships) {
     response.success(newGroupMemberships);
   }, function(error) {
@@ -134,9 +131,6 @@ exports.newUserJoinedGroup = function(group, fromuser, newuser)
 
   var promise = new Parse.Promise();
 
-  // Set up to modify user data
-  Parse.Cloud.useMasterKey();
-
   // Query for any invite for the new user, based on the phone number supplied
   var GroupMemClass = Parse.Object.extend(_k.groupMembershipTableName);
   var groupMemQuery = new Parse.Query(GroupMemClass);
@@ -144,7 +138,7 @@ exports.newUserJoinedGroup = function(group, fromuser, newuser)
   groupMemQuery.equalTo(_k.groupMembershipGroupKey, group);
   groupMemQuery.equalTo(_k.groupMembershipUserKey, newUser);
 
-  groupMemQuery.first().then(function(object) {
+  groupMemQuery.first({useMasterKey: true}).then(function(object) {
     // if the user is not part of the group
     if (_.isUndefined(object)) {
       // Send group notififcation before adding the new user to the group
@@ -177,9 +171,6 @@ exports.sendNotificationToGroup = function(pushPayloadType, group, post, fromUse
 
   var promise = new Parse.Promise();
 
-  // Set up to modify user data
-  Parse.Cloud.useMasterKey();
-
   // Query for any invite for the new user, based on the phone number supplied
   var GroupMemClass = Parse.Object.extend(_k.groupMembershipTableName);
   var groupMemQuery = new Parse.Query(GroupMemClass);
@@ -188,7 +179,7 @@ exports.sendNotificationToGroup = function(pushPayloadType, group, post, fromUse
   groupMemQuery.include(_k.groupMembershipUserKey);
   groupMemQuery.limit(1000);
 
-  groupMemQuery.find().then(function(objects) {
+  groupMemQuery.find({useMasterKey: true}).then(function(objects) {
 
     var toUsers = [];
     // For user, auto follow
@@ -248,7 +239,7 @@ exports.getMemberships = function(group)
   groupMembershipQuery.equalTo(_k.groupMembershipGroupKey, group);
   groupMembershipQuery.include(_k.groupMembershipUserKey);
 
-  return groupMembershipQuery.find();
+  return groupMembershipQuery.find({useMasterKey: true});
 };
 
 //------------------------------------------------------------------------------
@@ -262,8 +253,8 @@ exports.deleteMembers = function(group)
   var groupMembershipQuery = new Parse.Query(_k.groupMembershipTableName);
   groupMembershipQuery.equalTo(_k.groupMembershipGroupKey, group);
 
-  groupMembershipQuery.find().then(function(members) {
-    return Parse.Object.destroyAll(members);
+  groupMembershipQuery.find({useMasterKey: true}).then(function(members) {
+    return Parse.Object.destroyAll(members, {useMasterKey: true});
   });
 };
 
@@ -303,9 +294,6 @@ var saveGroupMembership = function(group, createdBy, user, rank)
 
   var promise = new Parse.Promise();
 
-  // Set up to modify user data
-  Parse.Cloud.useMasterKey();
-
   // Add the mention into the Activity class
   var groupMemClass = Parse.Object.extend(_k.groupMembershipTableName);
   var groupMem = new groupMemClass();
@@ -326,7 +314,7 @@ var saveGroupMembership = function(group, createdBy, user, rank)
   groupMemACL.setPublicWriteAccess(true);
   groupMem.setACL(groupMemACL);
 
-  groupMem.save().then(function(membership) {
+  groupMem.save(null, {useMasterKey: true}).then(function(membership) {
     console.log("Group Membership saved: group: " + membership.get(_k.groupMembershipGroupKey).id + " user: " + membership.get(_k.groupMembershipUserKey).id + " rank: " + membership.get(_k.groupMembershipRankKey));
     promise.resolve(membership);
   }, function(object, error) {

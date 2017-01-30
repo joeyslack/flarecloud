@@ -30,9 +30,6 @@ var notificationFunctions = [
 // @params response - 
 //------------------------------------------------------------------------------
 Parse.Cloud.define("getAllNotificationsForUser", function(request,response) {
-
-  Parse.Cloud.useMasterKey();
-
   var currentUser = request.user;
   var currentDate = new Date();
 
@@ -118,7 +115,7 @@ function getCommentNotificationsForMyPosts(requestUser, date) {
 
   var activityQuery = commentNotificationsForMyPostsQuery(requestUser, date);
   
-  activityQuery.find().then(function(notifications) {
+  activityQuery.find({useMasterKey: true}).then(function(notifications) {
     var filteredNotifications = rejectUsersFromList(notifications, [requestUser]);
     promise.resolve(filteredNotifications);
   }, function(error) {
@@ -160,7 +157,7 @@ function getHeartsNotifications(requestUser, date) {
   activityQuery.descending(_k.classCreatedAt);
   activityQuery.limit(1000);
 
-  activityQuery.find().then(function(notifications) {
+  activityQuery.find({useMasterKey: true}).then(function(notifications) {
     promise.resolve(notifications);
   }, function(error) {
     console.log("Error: getHeartsNotifications: " + error.message);
@@ -182,7 +179,7 @@ function getCommentNotificationsForPostsUserFollows(requestUser, date) {
 
   var activityQuery = commentNotificationsForPostsUserFollowsQuery(requestUser, date);
   
-  activityQuery.find().then(function(notifications) {
+  activityQuery.find({useMasterKey: true}).then(function(notifications) {
     return filterCommentNotificationsForPostsUserFollows(requestUser, notifications);
   }).then(function(filteredNotifications) {
     promise.resolve(filteredNotifications);  
@@ -252,7 +249,7 @@ function getNewStoryNotifications(requestUser, date) {
   Following.getFollowingExcludeUsersWhoBlockMeAndWhoIBlock(requestUser).then(function(followingUsers) {
     var activityQuery = newStoryNotificationsQuery(requestUser, followingUsers, date);
 
-    activityQuery.find().then(function(notifications) {
+    activityQuery.find({useMasterKey: true}).then(function(notifications) {
       return filterNewStoryNotifications(notifications, requestUser);
     }).then(function(filteredNotifications) {
       promise.resolve(filteredNotifications);  
@@ -297,7 +294,7 @@ function getMentionNotifications(requestUser, date) {
 
   var activityQuery = mentionNotificationsQuery(requestUser, date);
   
-  activityQuery.find().then(function(notifications) {
+  activityQuery.find({useMasterKey: true}).then(function(notifications) {
     var filteredNotifications = rejectUsersFromList(notifications, [requestUser]);
     promise.resolve(filteredNotifications);  
   }, function(error) {
@@ -321,10 +318,11 @@ function getViewedMentionNotifications(requestUser, date) {
 
   var activityQuery = userMentionedNotificationsQuery(requestUser, date);
  
-  activityQuery.find().then(function(activities) {
+  activityQuery.find({useMasterKey: true}).then(function(activities) {
     mentionedActivities = activities;
     var viewedActivityQuery = viewedMentionNotificationsQuery(requestUser, date, activities);
-    return viewedActivityQuery.find();
+    
+    return viewedActivityQuery.find({useMasterKey: true});
   }).then(function(viewedActivities) {
     var filteredNotifications = [];
 
@@ -373,7 +371,7 @@ function getFollowingUsersYouDoNotFollowNotifications(requestUser, date) {
   var followedNotifications = [];
   var activityQuery = followedNotificationsQuery(requestUser);
   
-  activityQuery.find().then(function(notifications) {
+  activityQuery.find({useMasterKey: true}).then(function(notifications) {
     followedNotifications = notifications;
 
     // Get all people you follow
@@ -408,7 +406,7 @@ function getLast24HrsFollowedNotifications(requestUser, date)
 
   var activityQuery = followedNotificationsQuery(requestUser, date);
   
-  activityQuery.find().then(function(notifications) {
+  activityQuery.find({useMasterKey: true}).then(function(notifications) {
     var filteredNotifications = rejectUsersFromList(notifications, [requestUser]);
     promise.resolve(filteredNotifications);  
   }, function(error) {
@@ -431,7 +429,7 @@ function getFollowRequestNotifications(requestUser, date) {
 
   var activityQuery = followRequestNotificationsQuery(requestUser);
   
-  activityQuery.find().then(function(notifications) {
+  activityQuery.find({useMasterKey: true}).then(function(notifications) {
 //  console.log("2. ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ filteredNotifications: " + filteredNotifications.length);
 //    _.each(filteredNotifications, function(notification) {
 //      console.log("    Filtered: follow request from: " + notification.get(_k.activityFromUserKey).get(_k.userFullNameKey) + " id: " + notification.get(_k.activityFromUserIdStringKey));

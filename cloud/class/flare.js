@@ -6,6 +6,11 @@ var Activity = require('../class/activity.js');
 var Utility = require('../utils/utility.js');
 var Push = require('../utils/push.js');
 
+// Override jobs for now
+Parse.Cloud.job = function() {
+  return true;
+}
+
 //------------------------------------------------------------------------------
 // Local
 //------------------------------------------------------------------------------
@@ -44,7 +49,7 @@ Parse.Cloud.beforeSave('Flare', function(request, response) {
       group.id = object.group.objectId;
 
       group.set(_k.groupLastFlareExpirationDateKey, { "__type": "Date", "iso": expirationDate.toISOString() });
-      group.save().then(function() {
+      group.save(null, {useMasterKey: true}).then(function() {
         response.success();
       }, function (error) {
         response.error(error);
@@ -54,7 +59,7 @@ Parse.Cloud.beforeSave('Flare', function(request, response) {
     else {
       var user = Parse.User.current();
       user.set(_k.userFlareExpiresAtKey, { "__type": "Date", "iso": expirationDate.toISOString() });
-      user.save().then(function() {
+      user.save(null, {useMasterKey: true}).then(function() {
         response.success();
       }, function (error) {
         response.error(error);
@@ -168,7 +173,7 @@ exports.getPostsByUsers = function(users, date)
   var promise = new Parse.Promise();
 
   var postsQuery = _this.postsByUsersQuery(users, date);
-  postsQuery.find().then(function(posts) {
+  postsQuery.find({useMasterKey: true}).then(function(posts) {
     promise.resolve(posts);
   }, function(error) {
     console.log("getPostsByUsers: Error: " + error.message);
@@ -232,7 +237,7 @@ var fetchLastTenPostsByUsers = function(users)
 
   _.each(users, function(user) {
     var postsQuery = lastTenPostsByUserQuery(user);
-    postsPromises.push(postsQuery.find());
+    postsPromises.push(postsQuery.find({useMasterKey: true}));
   });
 
   Parse.Promise.when(postsPromises).then(function() {
@@ -300,7 +305,7 @@ var fetchLastTenPostsByGroups = function(groups)
 
   _.each(groups, function(group) {
     var postsQuery = lastTenPostsByGroupQuery(group);
-    postsPromises.push(postsQuery.find());
+    postsPromises.push(postsQuery.find({useMasterKey: true}));
   });
 
   Parse.Promise.when(postsPromises).then(function() {
@@ -346,7 +351,7 @@ exports.getPreviousPostByUser = function(requestUser, postCreatedAt) {
   // Query post table for last flare by requestUser
   var previousPostsQuery = previousPostsByUserQuery(requestUser, postCreatedAt);
 
-  previousPostsQuery.first().then(function(post) {
+  previousPostsQuery.first({useMasterKey: true}).then(function(post) {
     promise.resolve(post);
   }, function(error) {
     // This is not an error, if an post is not found this might be the first flare
@@ -401,9 +406,6 @@ function processNewPost (payload)
     promise.resolve();
     return promise;
   }
-
-  // Set up to modify user data
-  Parse.Cloud.useMasterKey();
 
   var requestParams = payload.params.request;
 
@@ -658,7 +660,7 @@ function getPreviousPostFromGroup(group, postCreatedAt)
   // Query post table for last flare by requestUser
   var previousPostsQuery = previousPostsFromGroupQuery(group);
 
-  previousPostsQuery.first().then(function(post) {
+  previousPostsQuery.first({useMasterKey: true}).then(function(post) {
     promise.resolve(post);
   }, function(error) {
     // This is not an error, if an post is not found this might be the first flare

@@ -19,9 +19,6 @@ exports.autoFollowNewUser = function(newUser)
   
   var promise = new Parse.Promise();
 
-  // Set up to modify user data
-  Parse.Cloud.useMasterKey();
-
   // Query for any invite for the new user, based on the phone number supplied 
   var phoneNumber = newUser.get(_k.userDeprecatedPhoneNumberKey);
   phoneNumber = !_.isUndefined(phoneNumber) ? phoneNumber : "";
@@ -45,7 +42,7 @@ exports.autoFollowNewUser = function(newUser)
   normalizedPhoneNumberInviteQuery.include(_k.inviteFromUserKey);
   
   var inviteQuery = Parse.Query.or(phoneNumberInviteQuery, normalizedPhoneNumberInviteQuery);
-  inviteQuery.first().then(function(objects) {
+  inviteQuery.first({useMasterKey: true}).then(function(objects) {
 
     if (_.isUndefined(objects)) {
       return;
@@ -96,9 +93,6 @@ exports.autoFollowNewUserGroups = function(newUser)
 
   var promise = new Parse.Promise();
 
-  // Set up to modify user data
-  Parse.Cloud.useMasterKey();
-
   // Query for any invite for the new user, based on the phone number supplied 
   var phoneNumber = newUser.get(_k.userDeprecatedPhoneNumberKey);
   phoneNumber = !_.isUndefined(phoneNumber) ? phoneNumber : "";
@@ -125,7 +119,7 @@ exports.autoFollowNewUserGroups = function(newUser)
   groupsInviteQuery.limit(1000);
   groupsInviteQuery.include(_k.inviteFromUserKey);
 
-  groupsInviteQuery.find().then(function(objects) {
+  groupsInviteQuery.find({useMasterKey: true}).then(function(objects) {
 
     console.log("groups: "+ JSON.stringify(objects));
     // For each invite, auto follow  
@@ -174,8 +168,8 @@ exports.deleteInvitesForGroup = function(groupId)
   var invitesQuery = new Parse.Query(InviteClass);
   
   invitesQuery.equalTo(_k.inviteGroupIdStringKey, groupId);
-  invitesQuery.find().then(function(invites) {
-    return Parse.Object.destroyAll(invites);
+  invitesQuery.find({useMasterKey: true}).then(function(invites) {
+    return Parse.Object.destroyAll(invites, {useMasterKey: true});
   });
 };
 
@@ -190,7 +184,7 @@ exports.saveForPhoneNumbers = function(phoneNumbers, fromUser, channel, group)
   var invitesQuery = inviteFromUserToPhoneNumbersQuery(fromUser, phoneNumbers, channel, group);
 
   console.log(invitesQuery);
-  invitesQuery.find().then(function(invites) {
+  invitesQuery.find({useMasterKey: true}).then(function(invites) {
 
     var inviteExistsForPhoneNumbers = [];
     _.each(invites, function(invite) {
@@ -260,9 +254,6 @@ var saveInvite = function(fromUser, phoneNumber, channel, group)
 {
   var promise = new Parse.Promise();
 
-  // Set up to modify user data
-  Parse.Cloud.useMasterKey();
-
   // Add the mention into the Activity class
   var InviteClass = Parse.Object.extend(_k.inviteTableName);
   var invite = new InviteClass();
@@ -289,7 +280,7 @@ var saveInvite = function(fromUser, phoneNumber, channel, group)
   inviteACL.setPublicReadAccess(true);
   invite.setACL(inviteACL);
 
-  invite.save().then(function(invite) {
+  invite.save(null, {useMasterKey: true}).then(function(invite) {
     console.log("Invite saved: fromUser: " + invite.get(_k.inviteFromUserIdStringKey) + " phoneNumber: " + invite.get(_k.inviteToPhoneNumberKey) + " channel: " + invite.get(_k.inviteChannelKey) + " group: " + invite.get(_k.inviteGroupIdStringKey));
 
     promise.resolve();

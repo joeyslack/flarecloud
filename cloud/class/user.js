@@ -5,6 +5,11 @@ var DateUtil = require('../utils/date.js');
 var Utility = require('../utils/utility.js');
 var PhoneFormat = require('../lib/PhoneFormat.js');
 
+// Override jobs for now
+Parse.Cloud.job = function() {
+  return true;
+}
+
 //------------------------------------------------------------------------------
 // Cloud Code
 //------------------------------------------------------------------------------
@@ -48,9 +53,6 @@ Parse.Cloud.job('processNewUserObjectJob', function(request, status) {
 // @params request - the request payload from the caller
 //------------------------------------------------------------------------------
 Parse.Cloud.job("checkForExpiredPosts", function(request, status) {
-  // Set up to modify user data
-  Parse.Cloud.useMasterKey();
- 
   // The repeat interval in mins 
   var interval = request.params.interval;
  
@@ -89,10 +91,6 @@ Parse.Cloud.job("checkForExpiredPosts", function(request, status) {
 // @params request - the request payload from the caller
 //------------------------------------------------------------------------------
 Parse.Cloud.job("migrateUsersLowerCaseEmail", function(request, response) {
-
-  // Set up to modify user data
-  Parse.Cloud.useMasterKey();
- 
   // Query for all users
   var query = new Parse.Query(Parse.User);
   query.each(function(user) {
@@ -108,7 +106,7 @@ Parse.Cloud.job("migrateUsersLowerCaseEmail", function(request, response) {
     user.set(_k.userUsernameKey, lowerCaseUsername);
 
     console.log(" email: " + lowerCaseEmail + " username: " + lowerCaseUsername);
-    return user.save({useMasterKey: true});
+    return user.save(null, {useMasterKey: true});
 
   }).then(function() {
     response.success("Success: migrate users lower case");
@@ -124,10 +122,6 @@ Parse.Cloud.job("migrateUsersLowerCaseEmail", function(request, response) {
 // @params request - the request payload from the caller
 //------------------------------------------------------------------------------
 Parse.Cloud.job("migrateUsersPhoneNumber", function(request, response) {
-
-  // Set up to modify user data
-  Parse.Cloud.useMasterKey();
- 
   // Query for all users
   var query = new Parse.Query(Parse.User);
   query.each(function(user) {
@@ -152,7 +146,7 @@ Parse.Cloud.job("migrateUsersPhoneNumber", function(request, response) {
       user.set(_k.userCountryCodeKey, 1);
       
       console.log(" name: " + user.get(_k.userFullNameKey) + " new phone number: " + normalizedPhoneNumber);
-      return user.save({useMasterKey: true});
+      return user.save(null, {useMasterKey: true});
     }
 
   }).then(function() {
@@ -168,11 +162,7 @@ Parse.Cloud.job("migrateUsersPhoneNumber", function(request, response) {
 //
 // @params request - the request payload from the caller
 //------------------------------------------------------------------------------
-Parse.Cloud.job("deleteInvalidUsers", function(request, response) {
-
-  // Set up to modify user data
-  Parse.Cloud.useMasterKey();
- 
+Parse.Cloud.job("deleteInvalidUsers", function(request, response) { 
   var currentDate = new Date();
   var currentDateWithInterval = DateUtil.subtractDays(currentDate, 1);
   
@@ -186,7 +176,7 @@ Parse.Cloud.job("deleteInvalidUsers", function(request, response) {
     var channel = user.get(_k.userChannelKey);
 
     if (updatedAt < currentDateWithInterval && _.isUndefined(email) && _.isUndefined(fullName) && _.isUndefined(channel)) {
-      return user.destroy();
+      return user.destroy({useMasterKey: true});
     }
 
   }).then(function() {
@@ -285,9 +275,6 @@ function runJobNewUserObject(request)
 function processNewUserObject(payload)
 {
   var promise = new Parse.Promise();
-
-  // Set up to modify user data
-  Parse.Cloud.useMasterKey();
 
   var requestUser = payload.params.user;
   var phoneNumber = _.isEmpty(payload.params.user.normalizedPhoneNumber) ? 

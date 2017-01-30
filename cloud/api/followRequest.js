@@ -19,9 +19,6 @@ var Push = require('../utils/push.js');
 // @params response - 
 //------------------------------------------------------------------------------
 Parse.Cloud.define("acceptFollowRequest", function(request,response) {
-
-  Parse.Cloud.useMasterKey();
-
   var currentUser = request.user;
   var fromUser = request.params[_k.fromUserId];
 
@@ -35,7 +32,7 @@ Parse.Cloud.define("acceptFollowRequest", function(request,response) {
     });
 
     return Parse.Promise.when(promises);
-  }).then(function(){
+  }).then(function() {
     return deleteFollowRequests([fromUser], currentUser);
   }).then(function(fromUsersIds) {
     return UserClass.getUsersWithIds(fromUsersIds);
@@ -57,9 +54,6 @@ Parse.Cloud.define("acceptFollowRequest", function(request,response) {
 // @params response - 
 //------------------------------------------------------------------------------
 Parse.Cloud.define("declineFollowRequest", function(request,response) {
-
-  Parse.Cloud.useMasterKey();
-
   var currentUser = request.user;
   var fromUser = request.params[_k.fromUserId];
   
@@ -86,9 +80,7 @@ Parse.Cloud.define("declineFollowRequest", function(request,response) {
 // @params requestUser
 //------------------------------------------------------------------------------
 var deleteFollowRequests = function(fromUsers, toUser) 
-{  
-  Parse.Cloud.useMasterKey();
-  
+{    
   var promise = new Parse.Promise();
 
   if (_.isUndefined(fromUsers) || !fromUsers.length ) {
@@ -100,7 +92,7 @@ var deleteFollowRequests = function(fromUsers, toUser)
 
     _.each(activities, function(activity){
       console.log(" Delete: follow request activity: " + activity.get(_k.activityFromUserIdStringKey) + " type: " + activity.get(_k.activityTypeKey));
-      promises.push(activity.destroy());
+      promises.push(activity.destroy({useMasterKey: true}));
     });
 
     return Parse.Promise.when(promises);
@@ -128,7 +120,7 @@ var getFollowRequests = function(fromUsers, toUser)
 
   var followReqQuery = followRequestActivityQuery(fromUsers, toUser); 
 
-  followReqQuery.find().then(function(activities) {
+  followReqQuery.find({useMasterKey: true}).then(function(activities) {
     promise.resolve(activities);
   },function(error) {
     promise.reject(error);

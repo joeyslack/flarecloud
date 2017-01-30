@@ -18,7 +18,7 @@ exports.getFollowers = function(requestUser) {
 
   var followersQuery = _this.usersQuery(requestUser);
 
-  followersQuery.find().then(function(followers) {
+  followersQuery.find({useMasterKey: true}).then(function(followers) {
     promise.resolve(followers);
   },function(error) {
     promise.reject(error);
@@ -42,7 +42,7 @@ exports.getFollowersExcludeUsersWhoIBlock = function(requestUser) {
   var blockedQuery = Block.thisUserBlockActivityQuery(requestUser);
   followersQuery.doesNotMatchKeyInQuery(_k.classObjectId, _k.activityToUserIdStringKey, blockedQuery);
 
-  followersQuery.find().then(function(followers) {
+  followersQuery.find({useMasterKey: true}).then(function(followers) {
     promise.resolve(followers);
   },function(error) {
     promise.reject(error);
@@ -66,7 +66,7 @@ exports.getFollowersExcludeUsersWhoBlockMe = function(requestUser) {
   var blockedQuery = Block.blockThisUserActivityQuery(requestUser);
   followersQuery.doesNotMatchKeyInQuery(_k.classObjectId, _k.activityFromUserIdStringKey, blockedQuery);
 
-  followersQuery.find().then(function(followers) {
+  followersQuery.find({useMasterKey: true}).then(function(followers) {
     promise.resolve(followers);
   },function(error) {
     promise.reject(error);
@@ -91,7 +91,7 @@ exports.getFollowersExcludeUsersWhoBlockMeAndWhoIBlock = function(requestUser) {
   var blockedQuery = Block.blockThisUserActivityQuery(requestUser);
   followersQuery.doesNotMatchKeyInQuery(_k.classObjectId, _k.activityFromUserIdStringKey, blockedQuery);
 
-  followersQuery.find().then(function(usersWhoDoNotBlockMe) {
+  followersQuery.find({useMasterKey: true}).then(function(usersWhoDoNotBlockMe) {
     followersWhoDoNotBlockMe = usersWhoDoNotBlockMe;
 
     var followersWhoIBlockQuery = _this.usersQuery(requestUser);
@@ -100,7 +100,7 @@ exports.getFollowersExcludeUsersWhoBlockMeAndWhoIBlock = function(requestUser) {
    var whoIblockedQuery = Block.thisUserBlockActivityQuery(requestUser);
    followersWhoIBlockQuery.doesNotMatchKeyInQuery(_k.classObjectId, _k.activityToUserIdStringKey, whoIblockedQuery);
 
-   return followersWhoIBlockQuery.find();
+   return followersWhoIBlockQuery.find({useMasterKey: true});
   }).then(function(followersWhoIBlock) {
     var followers = Utility.collectionIntersection(followersWhoIBlock, followersWhoDoNotBlockMe);
     promise.resolve(followers);

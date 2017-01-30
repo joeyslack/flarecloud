@@ -3,6 +3,11 @@ var _k = require('../class/classConstants.js');
 var DateUtil = require('../utils/date.js');
 var Utility = require('../utils/utility.js');
 
+// Override jobs for now
+Parse.Cloud.job = function() {
+  return true;
+}
+
 //------------------------------------------------------------------------------
 // Cloud Code
 //------------------------------------------------------------------------------
@@ -12,10 +17,7 @@ var Utility = require('../utils/utility.js');
 //
 // @params request - the request payload from the caller
 //------------------------------------------------------------------------------
-Parse.Cloud.job("deleteExpiredFiles", function(request, status) {
-  // Set up to modify user data
-  Parse.Cloud.useMasterKey();
- 
+Parse.Cloud.job("deleteExpiredFiles", function(request, status) { 
   // The repeat interval in mins 
   var interval = request.params.intervalInDays;
 

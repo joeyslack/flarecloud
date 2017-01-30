@@ -18,9 +18,6 @@ var User = require('../class/user.js');
 // @params response - 
 //------------------------------------------------------------------------------
 Parse.Cloud.define("newFriendJoinedNotification", function(request,response) {
-
-  Parse.Cloud.useMasterKey();
-
   var currentUser = request.user;
   var toUserIds = request.params[_k.toUserIds];
 
@@ -31,6 +28,4 @@ Parse.Cloud.define("newFriendJoinedNotification", function(request,response) {
     console.log("newFriendJoinedNotification Error: " + error.message);
     response.error(error);
   });
-  
 });
-

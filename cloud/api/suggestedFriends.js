@@ -23,9 +23,6 @@ var maxNumberOfFriendsSearched = 50;
 // @params response - 
 //------------------------------------------------------------------------------
 Parse.Cloud.define("getSuggestedFriendsForUser", function(request,response) {
-
-  Parse.Cloud.useMasterKey();
-
   var currentUser = request.user;
   
   // Increment views count for Flare
@@ -52,9 +49,6 @@ Parse.Cloud.define("getSuggestedFriendsForUser", function(request,response) {
 // @params response - 
 //------------------------------------------------------------------------------
 Parse.Cloud.define("getMutualFriendsForUser", function(request,response) {
-
-  Parse.Cloud.useMasterKey();
-
   var currentUser = request.user;
   var otherUserId = request.params.otherUserId;
 

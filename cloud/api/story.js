@@ -111,9 +111,6 @@ Parse.Cloud.define("getStoriesFromUsersWithIds", function(request,response) {
 // @params response - 
 //------------------------------------------------------------------------------
 Parse.Cloud.define("getGroupStoriesForUser", function(request,response) {
-
-  Parse.Cloud.useMasterKey();
-
   var currentUser = request.user;
   var currentDate = new Date();
   
@@ -134,9 +131,6 @@ Parse.Cloud.define("getGroupStoriesForUser", function(request,response) {
 // @params response - 
 //------------------------------------------------------------------------------
 Parse.Cloud.define("getUserStoriesForUser", function(request,response) {
-
-  Parse.Cloud.useMasterKey();
-
   var currentUser = request.user;
   var currentDate = new Date();
   
@@ -158,9 +152,6 @@ Parse.Cloud.define("getUserStoriesForUser", function(request,response) {
 // @params response - 
 //------------------------------------------------------------------------------
 Parse.Cloud.define("getStoriesForUser", function(request,response) {
-
-  Parse.Cloud.useMasterKey();
-
   var currentUser = request.user;
   var currentDate = new Date();
   
