@@ -199,10 +199,11 @@ function sortAndFilterAllStories(stories, date) {
 
   // Remove any duplicate notifications
   var sortedStories = _.uniq(sorted, function(item) { 
-    return item.id;
+    if (item && item.id) return item.id;
   });
 
   promise.resolve(sortedStories.reverse());
+  
   return promise;
 }
 
