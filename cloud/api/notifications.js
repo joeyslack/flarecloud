@@ -139,7 +139,7 @@ function getHeartsNotifications(requestUser, date) {
 
   activityQuery.equalTo(_k.activityToUserIdStringKey, requestUser.id);
   activityQuery.equalTo(_k.activityTypeKey, _k.activityTypeHearts);
-  activityQuery.notEqualTo(_k.activityFromUserIdStringKey, Parse.User.current().id);
+  activityQuery.notEqualTo(_k.activityFromUserIdStringKey, requestUser.id);
 
   // Only show last 24 hours worth of notifications
   var yesterday = DateUtil.subtractDays(date, 1);
