@@ -23,9 +23,6 @@ var lastTenStoriesFunctions = [
 // @params response - 
 //------------------------------------------------------------------------------
 Parse.Cloud.define("getAllStoriesForUser", function(request,response) {
-
-  Parse.Cloud.useMasterKey();
-
   var currentUser = request.user;
   var currentDate = new Date();
  
@@ -35,8 +32,11 @@ Parse.Cloud.define("getAllStoriesForUser", function(request,response) {
   }
 
   // Get group story 
-  fetchAllStoriesForUser(currentUser, currentDate).then(function(postsFromUser, postsFromGroups) {
+  fetchAllStoriesForUser(currentUser, currentDate).then(function(posts) {
+    var postsFromUser = posts[0];
+    var postsFromGroups = posts[1] || [];
     var allStories = postsFromUser.concat(postsFromGroups);
+    
     return sortAndFilterAllStories(allStories, currentDate);
   }).then(function(posts) {
     response.success(posts);
@@ -54,20 +54,19 @@ Parse.Cloud.define("getAllStoriesForUser", function(request,response) {
 // @params response - 
 //------------------------------------------------------------------------------
 Parse.Cloud.define("getLastTenStoriesForUser", function(request,response) {
-
-  Parse.Cloud.useMasterKey();
-
   var currentUser = request.user;
   var currentDate = new Date();
  
   if (_.isNull(currentUser) || _.isUndefined(currentUser)) {
     response.error("Null or invalid request user");
+    
     return;
   }
 
   // Get group story 
   fetchLastTenStoriesForUser(currentUser, currentDate).then(function(postsFromUser, postsFromGroups) {
     var allStories = postsFromUser.concat(postsFromGroups);
+    
     return sortAndFilterAllStories(allStories, currentDate);
   }).then(function(posts) {
     response.success(posts);
@@ -85,9 +84,6 @@ Parse.Cloud.define("getLastTenStoriesForUser", function(request,response) {
 // @params response - 
 //------------------------------------------------------------------------------
 Parse.Cloud.define("getStoriesFromUsersWithIds", function(request,response) {
-
-  Parse.Cloud.useMasterKey();
-
   var currentDate = new Date();
   var userIds = request.params[_k.toUserIds];
 
@@ -276,7 +272,7 @@ function getStoryAuthors(requestUser, date) {
   var promise = new Parse.Promise();
 
   var userQuery = storyAuthorsUserQuery(requestUser, date);
-  userQuery.find().then(function(users) {
+  userQuery.find({useMasterKey: true}).then(function(users) {
     return Block.getBlockedUsers(requestUser, users);
   }).then(function(blockedUsers, activeFriends) {
 
@@ -311,7 +307,7 @@ function getPostsByUsers(users, date) {
   var promise = new Parse.Promise();
  
   var postsQuery = Flare.postsByUsersQuery(users, date);
-  postsQuery.find().then(function(posts) {
+  postsQuery.find({useMasterKey: true}).then(function(posts) {
     promise.resolve(posts);
   }, function(error) {
     promise.reject(error);
@@ -357,7 +353,7 @@ function getLastTenStoryAuthors(requestUser, date) {
   var promise = new Parse.Promise();
 
   var userQuery = lastTenStoryAuthorsUserQuery(requestUser, date);
-  userQuery.find().then(function(users) {
+  userQuery.find({useMasterKey: true}).then(function(users) {
     return Block.getBlockedUsers(requestUser, users);
   }).then(function(blockedUsers, activeFriends) {
 
@@ -419,7 +415,7 @@ function getPostsForGroups(groups, date) {
 
   var postsQuery = postsForGroupsQuery(groups, date);
  
-  postsQuery.find().then(function(posts) {
+  postsQuery.find({useMasterKey: true}).then(function(posts) {
     promise.resolve(posts);
   }, function(error) {
     console.log("Error: getPostsForGroups: " + error.message);

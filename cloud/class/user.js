@@ -108,7 +108,7 @@ Parse.Cloud.job("migrateUsersLowerCaseEmail", function(request, response) {
     user.set(_k.userUsernameKey, lowerCaseUsername);
 
     console.log(" email: " + lowerCaseEmail + " username: " + lowerCaseUsername);
-    return user.save();
+    return user.save({useMasterKey: true});
 
   }).then(function() {
     response.success("Success: migrate users lower case");
@@ -152,7 +152,7 @@ Parse.Cloud.job("migrateUsersPhoneNumber", function(request, response) {
       user.set(_k.userCountryCodeKey, 1);
       
       console.log(" name: " + user.get(_k.userFullNameKey) + " new phone number: " + normalizedPhoneNumber);
-      return user.save();
+      return user.save({useMasterKey: true});
     }
 
   }).then(function() {
@@ -214,7 +214,7 @@ exports.getUsersWithIds = function(userIds)
   var query = new Parse.Query(Parse.User);
   query.containedIn(_k.classObjectId, userIds);
 
-  query.find().then(function(users){
+  query.find({useMasterKey: true}).then(function(users){
     promise.resolve(users);
   }, function(error) {
     promise.reject();
@@ -236,7 +236,7 @@ exports.getUserWithId = function(id)
   var query = new Parse.Query(Parse.User);
   query.equalTo(_k.classObjectId, id);
 
-  query.first().then(function(user){
+  query.first({useMasterKey: true}).then(function(user){
     promise.resolve(user);
   }, function(error) {
     promise.reject();
@@ -301,7 +301,7 @@ function processNewUserObject(payload)
   userQuery.equalTo(_k.userPhoneNumberKey, phoneNumber);
 
   // Hydrate the parse user object
-  userQuery.first().then(function(user) {
+  userQuery.first({useMasterKey: true}).then(function(user) {
     console.log("user: " + JSON.stringify(user));
     
     requestUser = user;
