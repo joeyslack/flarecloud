@@ -27,9 +27,6 @@ var PhoneFormatter = require('../lib/PhoneFormat.js');
 // @params request -
 //------------------------------------------------------------------------------
 Parse.Cloud.define("sendSmsInvite", function(request, status) {
-  // Set up to modify user data
-  Parse.Cloud.useMasterKey();
-
   var fromUser = request.user;
   var phoneNumbers = request.params.phoneNumber; // This is an array of phone numbers
   var message = request.params.message;
