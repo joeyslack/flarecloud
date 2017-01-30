@@ -4,7 +4,7 @@ var Block = require('../api/block.js');
 var Utility = require('../utils/utility.js');
 
 //------------------------------------------------------------------------------
-// Public 
+// Public
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
@@ -16,7 +16,7 @@ exports.getFollowers = function(requestUser) {
 
   var promise = new Parse.Promise();
 
-  var followersQuery = _this.exports.usersQuery(requestUser); 
+  var followersQuery = _this.usersQuery(requestUser);
 
   followersQuery.find().then(function(followers) {
     promise.resolve(followers);
@@ -36,13 +36,13 @@ exports.getFollowersExcludeUsersWhoIBlock = function(requestUser) {
 
   var promise = new Parse.Promise();
 
-  var followersQuery = _this.exports.usersQuery(requestUser); 
+  var followersQuery = _this.usersQuery(requestUser);
 
   // Exclude Users who have blocked this user
   var blockedQuery = Block.thisUserBlockActivityQuery(requestUser);
   followersQuery.doesNotMatchKeyInQuery(_k.classObjectId, _k.activityToUserIdStringKey, blockedQuery);
-  
-  followersQuery.find().then(function(followers) { 
+
+  followersQuery.find().then(function(followers) {
     promise.resolve(followers);
   },function(error) {
     promise.reject(error);
@@ -52,7 +52,7 @@ exports.getFollowersExcludeUsersWhoIBlock = function(requestUser) {
 };
 
 //------------------------------------------------------------------------------
-// function: getFollowingExcludeUsersWhoBlockMe 
+// function: getFollowingExcludeUsersWhoBlockMe
 //
 // @params requestUser
 //------------------------------------------------------------------------------
@@ -60,7 +60,7 @@ exports.getFollowersExcludeUsersWhoBlockMe = function(requestUser) {
 
   var promise = new Parse.Promise();
 
-  var followersQuery = _this.exports.usersQuery(requestUser); 
+  var followersQuery = _this.usersQuery(requestUser);
 
   // Exclude Users who have blocked this user
   var blockedQuery = Block.blockThisUserActivityQuery(requestUser);
@@ -76,7 +76,7 @@ exports.getFollowersExcludeUsersWhoBlockMe = function(requestUser) {
 };
 
 //------------------------------------------------------------------------------
-// function: getFollowersExcludeUsersWhoBlockMe 
+// function: getFollowersExcludeUsersWhoBlockMe
 //
 // @params requestUser
 //------------------------------------------------------------------------------
@@ -86,7 +86,7 @@ exports.getFollowersExcludeUsersWhoBlockMeAndWhoIBlock = function(requestUser) {
 
   var followersWhoDoNotBlockMe;
 
-  var followersQuery = _this.exports.usersQuery(requestUser); 
+  var followersQuery = _this.usersQuery(requestUser);
   // Exclude Users who have blocked this user
   var blockedQuery = Block.blockThisUserActivityQuery(requestUser);
   followersQuery.doesNotMatchKeyInQuery(_k.classObjectId, _k.activityFromUserIdStringKey, blockedQuery);
@@ -94,12 +94,12 @@ exports.getFollowersExcludeUsersWhoBlockMeAndWhoIBlock = function(requestUser) {
   followersQuery.find().then(function(usersWhoDoNotBlockMe) {
     followersWhoDoNotBlockMe = usersWhoDoNotBlockMe;
 
-    var followersWhoIBlockQuery = _this.exports.usersQuery(requestUser);
+    var followersWhoIBlockQuery = _this.usersQuery(requestUser);
 
    // Exclude Users who have blocked this user
    var whoIblockedQuery = Block.thisUserBlockActivityQuery(requestUser);
    followersWhoIBlockQuery.doesNotMatchKeyInQuery(_k.classObjectId, _k.activityToUserIdStringKey, whoIblockedQuery);
- 
+
    return followersWhoIBlockQuery.find();
   }).then(function(followersWhoIBlock) {
     var followers = Utility.collectionIntersection(followersWhoIBlock, followersWhoDoNotBlockMe);

@@ -5,14 +5,14 @@ var Push = require('../utils/push.js');
 var User = require('../class/user.js');
 
 //------------------------------------------------------------------------------
-// Public 
+// Public
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
 // function: acceptFollowRequest
 //
 // @params request -
-// @params response - 
+// @params response -
 //------------------------------------------------------------------------------
 Parse.Cloud.define("addMembersToGroup", function(request,response) {
 
@@ -35,7 +35,7 @@ Parse.Cloud.define("addMembersToGroup", function(request,response) {
     return User.getUsersWithIds(addMemberUserIds);
   }).then(function(userObjects) {
     addMemberUsers = userObjects;
-    return _this.exports.getMemberships(group);
+    return _this.getMemberships(group);
   }).then(function(memberships) {
 
     var usersInGroup = [];
@@ -54,7 +54,7 @@ Parse.Cloud.define("addMembersToGroup", function(request,response) {
     if (addMemberUsers.length === 0 && userObjects.length > 0) {
       var groupName = _.isEmpty(group) ? "" : group.get(_k.groupNameKey);
       var groupDescription = " already in the " + groupName + " group.";
-      
+
       var namesString = "";
 
       for (var i = 0; i < userObjects.length; i++) {
@@ -66,7 +66,7 @@ Parse.Cloud.define("addMembersToGroup", function(request,response) {
          }
          else if (i > 0) {
            if (i === (userObjects.length - 2)) {
-             namesString += " and "; 
+             namesString += " and ";
            }
            else if (i < (userObjects.length - 2)) {
              namesString += ", ";
@@ -111,7 +111,7 @@ Parse.Cloud.define("addMembersToGroup", function(request,response) {
       addMemberUsers.push(currentUser);
     }
 
-    return _this.exports.areUsersInGroupQuery(addMemberUsers, group).find();
+    return _this.areUsersInGroupQuery(addMemberUsers, group).find();
   }).then(function(newGroupMemberships) {
     response.success(newGroupMemberships);
   }, function(error) {
@@ -122,11 +122,11 @@ Parse.Cloud.define("addMembersToGroup", function(request,response) {
 });
 
 //------------------------------------------------------------------------------
-// function: autofollownewuser 
+// function: autofollownewuser
 //
 // @params request -
 //------------------------------------------------------------------------------
-exports.newUserJoinedGroup = function(group, fromuser, newuser) 
+exports.newUserJoinedGroup = function(group, fromuser, newuser)
 {
   if (_.isUndefined(group) || _.isNull(group) || _.isUndefined(fromUser) || _.isNull(fromUser)) {
     return Parse.Promise.as();
@@ -137,7 +137,7 @@ exports.newUserJoinedGroup = function(group, fromuser, newuser)
   // Set up to modify user data
   Parse.Cloud.useMasterKey();
 
-  // Query for any invite for the new user, based on the phone number supplied 
+  // Query for any invite for the new user, based on the phone number supplied
   var GroupMemClass = Parse.Object.extend(_k.groupMembershipTableName);
   var groupMemQuery = new Parse.Query(GroupMemClass);
 
@@ -148,16 +148,16 @@ exports.newUserJoinedGroup = function(group, fromuser, newuser)
     // if the user is not part of the group
     if (_.isUndefined(object)) {
       // Send group notififcation before adding the new user to the group
-      _this.exports.sendNotificationToGroup(_k.pushPayloadActivityTypeJoinedGroup, group, undefined, newUser);
+      _this.sendNotificationToGroup(_k.pushPayloadActivityTypeJoinedGroup, group, undefined, newUser);
       return saveGroupMembership(group, fromUser, newUser, "member"); // Cloud code only handles members of groups not admins
     } else {
-      console.log("object: " + object.id + "user: " + newUser.id + " is already part of group: " + group.id); 
+      console.log("object: " + object.id + "user: " + newUser.id + " is already part of group: " + group.id);
       return Parse.Promise.as();
     }
   }).then(function(){
     promise.resolve();
   }, function(error) {
-    console.log("GroupMembership query: addUserToGroup error: " + error.message); 
+    console.log("GroupMembership query: addUserToGroup error: " + error.message);
     promise.reject(error);
   });
 
@@ -165,11 +165,11 @@ exports.newUserJoinedGroup = function(group, fromuser, newuser)
 };
 
 //------------------------------------------------------------------------------
-// function: sendNotificationToGroup 
+// function: sendNotificationToGroup
 //
 // @params request -
 //------------------------------------------------------------------------------
-exports.sendNotificationToGroup = function(pushPayloadType, group, post, fromUser) 
+exports.sendNotificationToGroup = function(pushPayloadType, group, post, fromUser)
 {
   if (_.isUndefined(group) || _.isNull(group) || _.isUndefined(fromUser) || _.isNull(fromUser)) {
     return Parse.Promise.as();
@@ -180,7 +180,7 @@ exports.sendNotificationToGroup = function(pushPayloadType, group, post, fromUse
   // Set up to modify user data
   Parse.Cloud.useMasterKey();
 
-  // Query for any invite for the new user, based on the phone number supplied 
+  // Query for any invite for the new user, based on the phone number supplied
   var GroupMemClass = Parse.Object.extend(_k.groupMembershipTableName);
   var groupMemQuery = new Parse.Query(GroupMemClass);
 
@@ -191,7 +191,7 @@ exports.sendNotificationToGroup = function(pushPayloadType, group, post, fromUse
   groupMemQuery.find().then(function(objects) {
 
     var toUsers = [];
-    // For user, auto follow  
+    // For user, auto follow
     if (objects.length > 0) {
       _.each(objects, function (object) {
         member = object.get(_k.groupMembershipUserKey);
@@ -206,7 +206,7 @@ exports.sendNotificationToGroup = function(pushPayloadType, group, post, fromUse
       // Send push notification to users who have invited this user
       return Push.send(pushPayloadType, toUsers, fromUser, post, group);
     } else {
-      return Parse.Promise.as();  
+      return Parse.Promise.as();
     }
 
   }).then(function() {
@@ -220,12 +220,12 @@ exports.sendNotificationToGroup = function(pushPayloadType, group, post, fromUse
 };
 
 //------------------------------------------------------------------------------
-// function: groupsUserFollowsQuery 
+// function: groupsUserFollowsQuery
 //
-// @params user - 
+// @params user -
 //------------------------------------------------------------------------------
-exports.forUserQuery = function(user) 
-{ 
+exports.forUserQuery = function(user)
+{
   var GroupMembership = Parse.Object.extend(_k.groupMembershipTableName);
   var groupMembershipQuery = new Parse.Query(GroupMembership);
 
@@ -240,10 +240,10 @@ exports.forUserQuery = function(user)
 // function: getMemberships
 //
 // @params  group object
-// @returns array Result of query 
+// @returns array Result of query
 //------------------------------------------------------------------------------
-exports.getMemberships = function(group) 
-{ 
+exports.getMemberships = function(group)
+{
   var groupMembershipQuery = new Parse.Query(_k.groupMembershipTableName);
   groupMembershipQuery.equalTo(_k.groupMembershipGroupKey, group);
   groupMembershipQuery.include(_k.groupMembershipUserKey);
@@ -255,10 +255,10 @@ exports.getMemberships = function(group)
 // function: deleteMembers
 //
 // @params  group object
-// @returns array Result of query 
+// @returns array Result of query
 //------------------------------------------------------------------------------
-exports.deleteMembers = function(group) 
-{ 
+exports.deleteMembers = function(group)
+{
   var groupMembershipQuery = new Parse.Query(_k.groupMembershipTableName);
   groupMembershipQuery.equalTo(_k.groupMembershipGroupKey, group);
 
@@ -270,10 +270,10 @@ exports.deleteMembers = function(group)
 //------------------------------------------------------------------------------
 // function: areUsersIngroupQuery
 //
-// @params user - 
+// @params user -
 //------------------------------------------------------------------------------
-exports.areUsersInGroupQuery = function(users, group) 
-{ 
+exports.areUsersInGroupQuery = function(users, group)
+{
   var GroupMembership = Parse.Object.extend(_k.groupMembershipTableName);
   var groupMembershipQuery = new Parse.Query(GroupMembership);
 
@@ -287,15 +287,15 @@ exports.areUsersInGroupQuery = function(users, group)
 };
 
 //------------------------------------------------------------------------------
-// Private 
+// Private
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
-// function: groupMembership 
+// function: groupMembership
 //
 // @params request -
 //------------------------------------------------------------------------------
-var saveGroupMembership = function(group, createdBy, user, rank) 
+var saveGroupMembership = function(group, createdBy, user, rank)
 {
   if (_.isUndefined(group) || _.isNull(group) || _.isUndefined(user) || _.isNull(user)) {
     return Parse.Promise.as();

@@ -18,11 +18,11 @@ var NameUtil = require('../utils/name.js');
 var PhoneFormatter = require('../lib/PhoneFormat.js');
 
 //------------------------------------------------------------------------------
-// Public 
+// Public
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
-// function: sendSmsInvite 
+// function: sendSmsInvite
 //
 // @params request -
 //------------------------------------------------------------------------------
@@ -30,7 +30,7 @@ Parse.Cloud.define("sendSmsInvite", function(request, status) {
   // Set up to modify user data
   Parse.Cloud.useMasterKey();
 
-  var fromUser = request.user; 
+  var fromUser = request.user;
   var phoneNumbers = request.params.phoneNumber; // This is an array of phone numbers
   var message = request.params.message;
   var flareId = request.params.flareId;
@@ -39,7 +39,7 @@ Parse.Cloud.define("sendSmsInvite", function(request, status) {
   var tags = request.params.tags;
 
   addGroupInviteData(group, phoneNumbers, fromUser).then(function() {
-    return _this.exports.sendInvite("sms", phoneNumbers, fromUser, flareId, group, stage, tags, message);
+    return _this.sendInvite("sms", phoneNumbers, fromUser, flareId, group, stage, tags, message);
   }).then(function() {
     status.success("Sent SMS invite to " + phoneNumbers.length + " phone numbers.");
   }, function(error) {
@@ -49,21 +49,21 @@ Parse.Cloud.define("sendSmsInvite", function(request, status) {
 });
 
 //------------------------------------------------------------------------------
-// function: 'Activity' Table - AfterSave 
+// function: 'Activity' Table - AfterSave
 //
 // @params request -
 //------------------------------------------------------------------------------
 exports.sendMentionInvite = function(phoneNumbers, fromUser, flareObject)
 {
-  return _this.exports.sendInvite("@mention sms", phoneNumbers, fromUser, flareObject.id);
+  return _this.sendInvite("@mention sms", phoneNumbers, fromUser, flareObject.id);
 };
 
 //------------------------------------------------------------------------------
-// function: 'Activity' Table - AfterSave 
+// function: 'Activity' Table - AfterSave
 //
 // @params request -
 //------------------------------------------------------------------------------
-exports.sendInvite = function(channel, phoneNumbers, fromUser, flareId, group, stage, tags, message) 
+exports.sendInvite = function(channel, phoneNumbers, fromUser, flareId, group, stage, tags, message)
 {
   var sendEach = function(mediaUrl) {
     var promises = [];
@@ -76,11 +76,11 @@ exports.sendInvite = function(channel, phoneNumbers, fromUser, flareId, group, s
 
     return Parse.Promise.when(promises);
   }
- 
+
   if (!_.isEmpty(fromUser) && !_.isEmpty(fromUser.id)) {
-    return Utility.getProfilePictureForUser(fromUser.id).then(function(imageUrl) { 
+    return Utility.getProfilePictureForUser(fromUser.id).then(function(imageUrl) {
       return sendEach();
-    }); 
+    });
   }
   else {
     return sendEach();
@@ -88,19 +88,19 @@ exports.sendInvite = function(channel, phoneNumbers, fromUser, flareId, group, s
 };
 
 //------------------------------------------------------------------------------
-// function: 'Activity' Table - AfterSave 
+// function: 'Activity' Table - AfterSave
 //
 // @params request -
 //------------------------------------------------------------------------------
-exports.sendActivationCode = function(phoneNumber, code, language) 
+exports.sendActivationCode = function(phoneNumber, code, language)
 {
   var promise = new Parse.Promise();
-  var bodyMessage = 'Your verification code for ' + _k.appName + ' is ' + code; 
+  var bodyMessage = 'Your verification code for ' + _k.appName + ' is ' + code;
 
-  var twilioPhoneNumber = Utility.randomObjectFromArray(activeTwilioPhoneNumbers); 
+  var twilioPhoneNumber = Utility.randomObjectFromArray(activeTwilioPhoneNumbers);
   var token = twilioSid + ':' + twilioToken;
-  var params = { 
-    To: phoneNumber, 
+  var params = {
+    To: phoneNumber,
     From: twilioPhoneNumber,
     Body: bodyMessage
   }
@@ -114,27 +114,27 @@ exports.sendActivationCode = function(phoneNumber, code, language)
 };
 
 //------------------------------------------------------------------------------
-// Private 
+// Private
 //------------------------------------------------------------------------------
 serialize = function(obj) { var str = []; for(var p in obj) if (obj.hasOwnProperty(p)) { str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p])); } return str.join("&"); };
 
 //------------------------------------------------------------------------------
-// function: 'Activity' Table - AfterSave 
+// function: 'Activity' Table - AfterSave
 //
 // @params request -
 //------------------------------------------------------------------------------
-var sendSms = function(phoneNumber, fromUser, trackingURL, message, mediaUrl) 
+var sendSms = function(phoneNumber, fromUser, trackingURL, message, mediaUrl)
 {
   var promise = new Parse.Promise();
 
   if (_.isUndefined(phoneNumber)) {
     return promise.reject("phoneNumber is not defined");
   }
-  
+
   //var bodyMessage = "Hey a couple of us just got on this app Flare. You should check it out. www.flareapp.co " + trackingURL;
   var bodyMessage = "Add me on Flare! " + trackingURL;
-  var twilioPhoneNumber = Utility.randomObjectFromArray(activeTwilioPhoneNumbers); 
-  
+  var twilioPhoneNumber = Utility.randomObjectFromArray(activeTwilioPhoneNumbers);
+
   if (!_.isEmpty(message)) {
     bodyMessage = message + " " + trackingURL;
   } else if (!_.isUndefined(trackingURL) && !_.isUndefined(fromUser)) {
@@ -144,8 +144,8 @@ var sendSms = function(phoneNumber, fromUser, trackingURL, message, mediaUrl)
   }
 
   var token = twilioSid + ':' + twilioToken;
-  var params = { 
-    To: phoneNumber, 
+  var params = {
+    To: phoneNumber,
     From: twilioPhoneNumber,
     Body: bodyMessage
   }
@@ -172,18 +172,18 @@ var sendSms = function(phoneNumber, fromUser, trackingURL, message, mediaUrl)
       promise.reject(httpResponse);
     }
   });
-  
+
   return promise;
 };
 
-/** 
-* Send SMS when Parse-Twilio send fails 
+/**
+* Send SMS when Parse-Twilio send fails
 * (like when their cert expires: https://developers.facebook.com/bugs/1696266953962575/)
 * @param phonenumber       string Destination phone number as a string (including country code, etc)
 * @param twilioPhoneNumber string Phone number of sender (twilio phone numbers)
 * @param bodyMessage       string The SMS Message to be delivered
 **/
-var sendSmsFallback = function(phoneNumber, twilioPhoneNumber, bodyMessage, error) { 
+var sendSmsFallback = function(phoneNumber, twilioPhoneNumber, bodyMessage, error) {
   console.log("Attempting SMS Fallback...");
   var params = "To=" + phoneNumber + "&From=" + twilioPhoneNumber + "&Body=" + encodeURIComponent(bodyMessage);
 
@@ -209,7 +209,7 @@ var sendSmsFallback = function(phoneNumber, twilioPhoneNumber, bodyMessage, erro
 * @param phoneNumber string
 * @param fromUser    object
 */
-var addGroupInviteData = function(group, phoneNumbers, fromUser) 
+var addGroupInviteData = function(group, phoneNumbers, fromUser)
 {
   var promise = new Parse.Promise();
 
@@ -233,7 +233,7 @@ var addGroupInviteData = function(group, phoneNumbers, fromUser)
 }
 
 //------------------------------------------------------------------------------
-// function: 'Activity' Table - AfterSave 
+// function: 'Activity' Table - AfterSave
 //
 // @params request -
 //------------------------------------------------------------------------------
@@ -246,8 +246,8 @@ var constructBranchParams = function(channel, stage, tags, phoneNumber, fromUser
   var fromUserPhoneNumber = _.isEmpty(fromUser) ? null : fromUser.get(_k.userPhoneNumberKey);
 
   // Dictionary of value to attach to the Branch metrics tracking URL
-  var dataDict = { 
-    "fromUser_id": fromUserId, 
+  var dataDict = {
+    "fromUser_id": fromUserId,
     "fromUser_name": fromUserName,
     "fromUser_email": fromUserEmail,
     "fromUser_phone": fromUserPhoneNumber,
@@ -261,7 +261,7 @@ var constructBranchParams = function(channel, stage, tags, phoneNumber, fromUser
   if (phoneNumber) {
     dataDict.toUser_phone = phoneNumber;
   }
-  
+
   if (group) {
     dataDict.fromGroup_id = group.groupId;
     dataDict.fromGroup_name = group.groupName;
@@ -269,7 +269,7 @@ var constructBranchParams = function(channel, stage, tags, phoneNumber, fromUser
 
   // Create the final parameters that will be attached to the branch link
   var params = {
-    "branch_key": branchKey,             
+    "branch_key": branchKey,
     "identity": fromUserId,
     "channel": channel,
     "data": dataDict
@@ -293,11 +293,11 @@ var constructBranchParams = function(channel, stage, tags, phoneNumber, fromUser
 };
 
 //------------------------------------------------------------------------------
-// function: 'Activity' Table - AfterSave 
+// function: 'Activity' Table - AfterSave
 //
 // @params request -
 //------------------------------------------------------------------------------
-var getTrackURLAndSendSMS = function(phoneNumber, fromUser, params, message, mediaUrl) 
+var getTrackURLAndSendSMS = function(phoneNumber, fromUser, params, message, mediaUrl)
 {
   if (_.isEmpty(fromUser) || _.isEmpty(phoneNumber)) {
     return;
@@ -321,10 +321,10 @@ var getTrackURLAndSendSMS = function(phoneNumber, fromUser, params, message, med
 
     // Send the SMS invite to download the app
     return sendSms(phoneNumber, fromUser, json_result.url, message, mediaUrl);
-  }).then(function() { 
+  }).then(function() {
     promise.resolve();
   },function(httpResponse) {
     console.log("Error getting Branch link: json.url: " + json_result.url + ", phoneNumber: " + phoneNumber + ", fromUser.get(fullName): " + fromUser.get('fullName'));
     promise.reject();
-  }); 
+  });
 };

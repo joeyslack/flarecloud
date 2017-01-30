@@ -4,7 +4,7 @@ var _k = require('../class/classConstants.js');
 var GroupMembership = require('../class/groupMembership.js');
 
 //------------------------------------------------------------------------------
-// Public 
+// Public
 //------------------------------------------------------------------------------
 
 /**
@@ -35,7 +35,7 @@ Parse.Cloud.define("getSuggestedGroups", function(request, response) {
     }
 
     response.success(groupData);
-  }); 
+  });
 });
 
 //------------------------------------------------------------------------------
@@ -48,7 +48,7 @@ Parse.Cloud.define("getSuggestedGroups", function(request, response) {
 Parse.Cloud.define("deleteGroup", function(request, response) {
   var groupId = request.params.groupId;
 
-  _this.exports.getGroupWithId(groupId).then(function(group) {
+  _this.getGroupWithId(groupId).then(function(group) {
     var promise = Parse.Promise.as();
 
     //1. Remove pending invites to this group
@@ -84,7 +84,7 @@ exports.getGroupsUserFollows = function(requestUser) {
   var promise = new Parse.Promise();
 
   var groupMembershipsQuery = GroupMembership.forUserQuery(requestUser);
-  
+
   groupMembershipsQuery.find().then(function(groupMemberships) {
     var groups = [];
     _.each(groupMemberships, function(groupMembership) {
@@ -99,7 +99,7 @@ exports.getGroupsUserFollows = function(requestUser) {
     console.log("Error: getGroupsUserFollows: " + error.message);
     promise.reject(error);
   });
-  
+
   return promise;
 };
 
@@ -110,7 +110,7 @@ exports.getGroupsUserFollows = function(requestUser) {
 // @params id - group id
 //------------------------------------------------------------------------------
 
-exports.getGroupWithId = function(id) 
+exports.getGroupWithId = function(id)
 {
   var promise = new Parse.Promise();
 
@@ -126,4 +126,3 @@ exports.getGroupWithId = function(id)
 
   return promise;
 };
-

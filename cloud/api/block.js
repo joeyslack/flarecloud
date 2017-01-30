@@ -2,7 +2,7 @@ var _this = this;
 var _k = require('../class/classConstants.js');
 
 //------------------------------------------------------------------------------
-// Public 
+// Public
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
@@ -10,19 +10,19 @@ var _k = require('../class/classConstants.js');
 //
 // @params requestUser -
 //------------------------------------------------------------------------------
-exports.getBlockedUsers = function(requestUser, activeFriends) 
+exports.getBlockedUsers = function(requestUser, activeFriends)
 {
   var promise = new Parse.Promise();
- 
+
   var usersQuery = blockedUsersQuery(requestUser);
-  
+
   usersQuery.find().then(function(blockedUsers) {
-    promise.resolve(blockedUsers, activeFriends); 
+    promise.resolve(blockedUsers, activeFriends);
   }, function(error) {
     console.log("Error: getBlockedUsers: " + error.message);
     promise.reject(error);
   });
-  
+
   return promise;
 };
 
@@ -49,7 +49,7 @@ exports.blockThisUserActivityQuery = function(requestUser)
 //
 // @params requesUser - return activity that this users blocks another user
 //------------------------------------------------------------------------------
-exports.thisUserBlockActivityQuery = function(requestUser) 
+exports.thisUserBlockActivityQuery = function(requestUser)
 {
   var Activity = Parse.Object.extend(_k.activityTableName);
   var activityQuery = new Parse.Query(Activity);
@@ -58,7 +58,7 @@ exports.thisUserBlockActivityQuery = function(requestUser)
   activityQuery.equalTo(_k.activityFromUserKey, requestUser);
   activityQuery.equalTo(_k.activityTypeKey, _k.activityTypeBlock);
   activityQuery.limit(1000);
- 
+
   return activityQuery;
 };
 
@@ -71,9 +71,9 @@ exports.thisUserBlockActivityQuery = function(requestUser)
 //
 // @params requesUser
 //------------------------------------------------------------------------------
-function blockedUsersQuery(requestUser) 
+function blockedUsersQuery(requestUser)
 {
-  var activityQuery = this.exports.thisUserBlockActivityQuery(requestUser);
+  var activityQuery = _this.thisUserBlockActivityQuery(requestUser);
 
   var userQuery = new Parse.Query(Parse.User);
   userQuery.matchesKeyInQuery(_k.classObjectId, _k.activityToUserIdStringKey, activityQuery);

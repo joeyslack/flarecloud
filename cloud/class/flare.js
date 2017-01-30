@@ -167,7 +167,7 @@ exports.getPostsByUsers = function(users, date)
 {
   var promise = new Parse.Promise();
 
-  var postsQuery = _this.exports.postsByUsersQuery(users, date);
+  var postsQuery = _this.postsByUsersQuery(users, date);
   postsQuery.find().then(function(posts) {
     promise.resolve(posts);
   }, function(error) {
@@ -553,7 +553,7 @@ function processNewUserStory(requestUser, post, createdAt)
 
   var promise = new Parse.Promise();
 
-  _this.exports.getPreviousPostByUser(requestUser, createdAt).then(function(previousPost) {
+  _this.getPreviousPostByUser(requestUser, createdAt).then(function(previousPost) {
 
     // If there was no previous flare, this could be the first flare the user posted
     if (_.isUndefined(previousPost)) {
