@@ -2,17 +2,17 @@
 require('dotenv').config({silent: true});
 
 // Opbeat init
-/*var opbeat = require('opbeat').start({
-  appId: '***',
-  organizationId: '***',
-  secretToken: '***'
-});*/
+var opbeat = require('opbeat').start({
+  appId: OPBEAT_APP_ID,
+  organizationId: OPBEAT_ORG_ID,
+  secretToken: OPBEAT_SECRET
+});
 
 const cluster = require('cluster');
 const numCPUs = require('os').cpus().length;
 
-// Code to run if we're in the master process
-if (cluster.isMaster && process.env.NODE_ENV != "development" && typeof process.env.WEB_CONCURRENCY !== 'undefined') {
+// Code to run if we're in the master process. Let's only do this if we have enough memory and CPU.
+if (cluster.isMaster && process.env.NODE_ENV != "development" && process.env.WEB_CONCURRENCY > 1 && process.env.WEB_MEMORY > 512) {
     // Create a worker for each CPU
     for (var i = 0; i < numCPUs; i += 1) {
         cluster.fork();
@@ -156,7 +156,7 @@ else {
   // ...but before any other error handler
   app.use(function (err, req, res, next) {
     // Custom error handling goes here
-    console.error(err);
+    //console.error(err);
     res.status(500).send();
   });
 }
