@@ -57,7 +57,7 @@ Parse.Cloud.beforeSave('Flare', function(request, response) {
     }
     // Normal flare
     else {
-      var user = Parse.User.current();
+      var user = request.user;
       user.set(_k.userFlareExpiresAtKey, { "__type": "Date", "iso": expirationDate.toISOString() });
       user.save(null, {useMasterKey: true}).then(function() {
         response.success();
@@ -141,7 +141,7 @@ Parse.Cloud.define("incrementHearts", function(request,response) {
     flareQuery.get(request.params.objectId, {
       success: function(flare) {
         if (sendPush) {
-          Push.send(_k.pushPayloadActivityTypeHeart, [flare.get("user")], Parse.User.current(), flare).then(function() {
+          Push.send(_k.pushPayloadActivityTypeHeart, [flare.get("user")], request.user, flare).then(function() {
             response.success("Successfully incremented hearts, and sent push");
           });
         }
