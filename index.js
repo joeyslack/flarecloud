@@ -12,7 +12,7 @@ const cluster = require('cluster');
 const numCPUs = require('os').cpus().length;
 
 // Code to run if we're in the master process
-if (cluster.isMaster && process.env.NODE_ENV != "development") {
+if (cluster.isMaster && process.env.NODE_ENV != "development" && typeof process.env.WEB_CONCURRENCY !== 'undefined') {
     // Create a worker for each CPU
     for (var i = 0; i < numCPUs; i += 1) {
         cluster.fork();
