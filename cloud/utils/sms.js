@@ -1,5 +1,8 @@
 var _this = this;
 
+// Load environment vars from .env
+require('dotenv').config({silent: true});
+
 var twilioSid = process.env.TWILIO_SID;
 var twilioToken = process.env.TWILIO_TOKEN;
 var twilio = require('twilio')(twilioSid, twilioToken);
