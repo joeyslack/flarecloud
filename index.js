@@ -120,7 +120,8 @@ var api = new ParseServer({
     }
   },
   revokeSessionOnPasswordReset: true,
-  enableAnonymousUsers: false
+  enableAnonymousUsers: false,
+  verbose: false
 });
 
 // Serve the Parse API on the /parse URL prefix
