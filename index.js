@@ -101,8 +101,8 @@ var api = new ParseServer({
     process.env.S3_BUCKET,
     {
       directAccess: true,
-      baseUrl: process.env.S3_BASE_URL,
-      globalCacheControl: 'public, max-age=172800'  // 48 hours in seconds
+      baseUrl: process.env.S3_BASE_URL
+      //globalCacheControl: 'public, max-age=172800'  // 48 hours in seconds
     }
   ),
   appName: process.env.APP_NAME,
