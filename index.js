@@ -88,7 +88,7 @@ var api = new ParseServer({
         production: true  // Prod
       },
       {
-        pfx: __dirname + '/certs/FlareMediaLLCFlareAppAPNSPushCert_DEV.p12',
+        pfx: __dirname + '/certs/FlareMediaLLCFlareAppAPNSPushCert_DEV.p12', 
         bundleId: 'com.flaremedia.flare',  
         production: false // Dev
       }
@@ -121,7 +121,8 @@ var api = new ParseServer({
   },
   revokeSessionOnPasswordReset: true,
   enableAnonymousUsers: false,
-  verbose: false
+  verbose: false,
+  logLevel: process.env.NODE_ENV == "development" ? "info" : "error"
 });
 
 // Serve the Parse API on the /parse URL prefix
