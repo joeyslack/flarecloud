@@ -48,7 +48,7 @@ exports.autoFollowNewUser = function(newUser)
       return;
     }
 
-    var followUser = require('cloud/class/activity.js').followUser;
+    var followUser = require('activity.js').followUser;
 
     // For each invite, auto follow  
     if (objects.length > 0) {
@@ -125,7 +125,7 @@ exports.autoFollowNewUserGroups = function(newUser)
     // For each invite, auto follow  
     if (objects.length > 0) {
 
-      var followUser = require('cloud/class/activity.js').followUser;
+      var followUser = require('activity.js').followUser;
 
       var followUsersPromises = [];
 

@@ -283,7 +283,7 @@ function processNewUserObject(payload)
 
   console.log("phoneNumber: " + phoneNumber);
 
-  var Invite = require('../cloud/class/invite.js');
+  var Invite = require('invite.js');
 
   // User query
   var userQuery = new Parse.Query(Parse.User);

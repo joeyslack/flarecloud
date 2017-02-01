@@ -24,7 +24,7 @@ Parse.Cloud.define("addMembersToGroup", function(request,response) {
   var group;
   var users = [];
 
-  var getGroupWithIdFunc = require('cloud/class/group.js').getGroupWithId;
+  var getGroupWithIdFunc = require('group.js').getGroupWithId;
 
   // Increment views count for Flare
   getGroupWithIdFunc(groupId).then(function(groupObject) {
