@@ -283,20 +283,21 @@ function processNewUserObject(payload)
 
   console.log("phoneNumber: " + phoneNumber);
 
+  var Invite = require('../cloud/class/invite.js');
+
   // User query
   var userQuery = new Parse.Query(Parse.User);
   userQuery.equalTo(_k.userPhoneNumberKey, phoneNumber);
 
   // Hydrate the parse user object
   userQuery.first({useMasterKey: true}).then(function(user) {
-    console.log("user: " + JSON.stringify(user));
-    
+    //console.log("user: " + JSON.stringify(user));
     requestUser = user;
     // Search the activity table for any invite events, auto-follow those users
-    return require('cloud/class/invite.js').autoFollowNewUser(requestUser);
+    return Invite.autoFollowNewUser(requestUser);
   }).then(function() {
     // Search the activity table for any invite events, auto-follow those users
-    return require('cloud/class/invite.js').autoFollowNewUserGroups(requestUser);
+    return Invite.autoFollowNewUserGroups(requestUser);
   }).then(function() {
     promise.resolve();
   }, function(error) {
