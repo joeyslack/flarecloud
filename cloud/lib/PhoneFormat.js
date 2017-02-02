@@ -70,7 +70,7 @@ function countryForE164Number(phone) {
 
 */
   try {
-    var phoneNumber = _this.exports.cleanPhone(phone);
+    var phoneNumber = _this.cleanPhone(phone);
     var phoneUtil = i18n.phonenumbers.PhoneNumberUtil.getInstance();
     var number = phoneUtil.parseAndKeepRawInput(phoneNumber);
     var output = new goog.string.StringBuffer();
@@ -93,7 +93,7 @@ function formatNumberForMobileDialing(country, phone) {
 */
 
   try {
-    var phoneNumber = _this.exports.cleanPhone(phone);
+    var phoneNumber = _this.cleanPhone(phone);
     var phoneUtil = i18n.phonenumbers.PhoneNumberUtil.getInstance();
     var number = phoneUtil.parseAndKeepRawInput(phoneNumber, country);
     var output = new goog.string.StringBuffer();
@@ -115,7 +115,7 @@ function isValidNumber(phone, country) {
 */
 
   try {
-    var phoneNumber = _this.exports.cleanPhone(phone);
+    var phoneNumber = _this.cleanPhone(phone);
     var phoneUtil = i18n.phonenumbers.PhoneNumberUtil.getInstance();
     var number = phoneUtil.parseAndKeepRawInput(phoneNumber, country);
     return phoneUtil.isValidNumber(number);
@@ -137,7 +137,7 @@ exports.formatE164 = function(country, phone) {
 */
 
   try {
-    var phoneNumber = _this.exports.cleanPhone(phone);
+    var phoneNumber = _this.cleanPhone(phone);
     var phoneUtil = i18n.phonenumbers.PhoneNumberUtil.getInstance();
     var number = phoneUtil.parseAndKeepRawInput(phoneNumber, country);
     var PNF = i18n.phonenumbers.PhoneNumberFormat;
@@ -162,7 +162,7 @@ function formatInternational(country, phone) {
 */
 
   try {
-    var phoneNumber = _this.exports.cleanPhone(phone);
+    var phoneNumber = _this.cleanPhone(phone);
     var formatter = new i18n.phonenumbers.AsYouTypeFormatter(country);
     var output = new goog.string.StringBuffer();
     for (var i = 0; i < phoneNumber.length; ++i) {
@@ -188,7 +188,7 @@ exports.formatLocal = function(country, phone) {
 */
 
   try {
-    var phoneNumber = _this.exports.cleanPhone(phone);
+    var phoneNumber = _this.cleanPhone(phone);
     var phoneUtil = i18n.phonenumbers.PhoneNumberUtil.getInstance();
     var number = phoneUtil.parseAndKeepRawInput(phoneNumber, country);
     if (phoneUtil.isValidNumberForRegion(number, country)) {
