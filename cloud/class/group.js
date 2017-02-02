@@ -2,6 +2,7 @@ var _this = this;
 var _ = require('../lib/underscore-min.js');
 var _k = require('../class/classConstants.js');
 var GroupMembership = require('../class/groupMembership.js');
+var Invite = require('../class/invite.js');
 
 //------------------------------------------------------------------------------
 // Public
@@ -53,7 +54,7 @@ Parse.Cloud.define("deleteGroup", function(request, response) {
 
     //1. Remove pending invites to this group
     promise = promise.then(function() {
-      return require('cloud/class/invite.js').deleteInvitesForGroup(group.id);
+      return Invite.deleteInvitesForGroup(group.id);
     });
 
     //2. Remove members from group

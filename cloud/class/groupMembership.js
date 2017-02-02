@@ -3,6 +3,7 @@ var _ = require('../lib/underscore-min.js');
 var _k = require('../class/classConstants.js');
 var Push = require('../utils/push.js');
 var User = require('../class/user.js');
+var Group = require('../class/group.js');
 
 //------------------------------------------------------------------------------
 // Public
@@ -24,10 +25,8 @@ Parse.Cloud.define("addMembersToGroup", function(request,response) {
   var group;
   var users = [];
 
-  var getGroupWithIdFunc = require('group.js').getGroupWithId;
-
   // Increment views count for Flare
-  getGroupWithIdFunc(groupId).then(function(groupObject) {
+  Group.getGroupWithId(groupId).then(function(groupObject) {
     group = groupObject;
     return User.getUsersWithIds(addMemberUserIds);
   }).then(function(userObjects) {
