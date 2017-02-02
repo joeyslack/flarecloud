@@ -18,45 +18,44 @@ var secretPasswordToken = 'FlareBears';
 // @params request -
 // @params response - 
 //------------------------------------------------------------------------------
-Parse.Cloud.define("sendVerificationCode", function(request,response) {
+Parse.Cloud.define("sendVerificationCode", function(request, response) {
   var currentUser = request.user;
   var phoneNumber = request.params.phoneNumber;
 	
   if (!phoneNumber) return response.error('Invalid Parameters');
   
   var userQuery = new Parse.Query(Parse.User);
-	userQuery.equalTo(_k.userUsernameKey, phoneNumber + "");
+  userQuery.equalTo(_k.userUsernameKey, phoneNumber);
 	
   userQuery.first({useMasterKey: true}).then(function(user) {
-		var min = 1000; var max = 9999;
-		var num = Math.floor(Math.random() * (max - min + 1)) + min;
+	var min = 1000; var max = 9999;
+	var num = Math.floor(Math.random() * (max - min + 1)) + min;
 
-		if (user) {
-			user.setPassword(secretPasswordToken + num);
-			user.save(null, {useMasterKey: true}).then(function() {
-				return Sms.sendActivationCode(phoneNumber, num);
-			}).then(function() {
-				response.success();
-			}, function(err) {
-				response.error(err);
-			});
-		} else {
-			var newUser = new Parse.User();
-			newUser.setUsername(phoneNumber);
-			newUser.setPassword(secretPasswordToken + num);
-			newUser.setACL({});
-			newUser.save(null, {useMasterKey: true}).then(function(a) {
-				return Sms.sendActivationCode(phoneNumber, num);
-			}).then(function() {
-				response.success();
-			}, function(err) {
-				response.error(err);
-			});
-		}
-	}, function (err) {
-		response.error(err);
-	});
-  
+	if (user) {
+		user.setPassword(secretPasswordToken + num);
+		user.save(null, {useMasterKey: true}).then(function() {
+			return Sms.sendActivationCode(phoneNumber, num);
+		}).then(function() {
+			response.success();
+		}, function(err) {
+			response.error(err);
+		});
+	} else {
+		var newUser = new Parse.User();
+		newUser.setUsername(phoneNumber);
+		newUser.setPassword(secretPasswordToken + num);
+		newUser.setACL({});
+		newUser.save(null, {useMasterKey: true}).then(function(a) {
+			return Sms.sendActivationCode(phoneNumber, num);
+		}).then(function() {
+			response.success();
+		}, function(err) {
+			response.error(err);
+		});
+	}
+  }, function (err) {
+    response.error(err);
+  });
 });
 
 //------------------------------------------------------------------------------

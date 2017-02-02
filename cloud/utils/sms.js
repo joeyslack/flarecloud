@@ -6,10 +6,7 @@ require('dotenv').config({silent: true});
 var twilioSid = process.env.TWILIO_SID;
 var twilioToken = process.env.TWILIO_TOKEN;
 var twilio = require('twilio')(twilioSid, twilioToken);
-
-var activeTwilioPhoneNumbers = process.env.TWILIO_NUMBERS.split(",").map(function(item) {
-  return item.trim();
-});
+var activeTwilioPhoneNumbers = process.env.TWILIO_NUMBERS.split(",");
 
 var branchKey = process.env.BRANCH_KEY;
 
@@ -106,17 +103,21 @@ exports.sendActivationCode = function(phoneNumber, code, language)
   }
 
   // Manually send twilio sms
-  return Parse.Cloud.httpRequest({
+  Parse.Cloud.httpRequest({
     method: 'POST',
-    url: 'https://'+ token + '@api.twilio.com/2010-04-01/Accounts/' + twilioSid + '/Messages.json',
+    url: 'https://' + token + '@api.twilio.com/2010-04-01/Accounts/' + twilioSid + '/Messages.json',
     body: serialize(params)
+  }).then(function(success) {
+    promise.resolve(success);
+  }, function (error) {
+    promise.reject(error);
   });
 };
 
 //------------------------------------------------------------------------------
 // Private
 //------------------------------------------------------------------------------
-serialize = function(obj) { var str = []; for(var p in obj) if (obj.hasOwnProperty(p)) { str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p])); } return str.join("&"); };
+var serialize = function(obj) { var str = []; for(var p in obj) if (obj.hasOwnProperty(p)) { str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p])); } return str.join("&"); };
 
 //------------------------------------------------------------------------------
 // function: 'Activity' Table - AfterSave
@@ -145,33 +146,29 @@ var sendSms = function(phoneNumber, fromUser, trackingURL, message, mediaUrl)
 
   var token = twilioSid + ':' + twilioToken;
   var params = {
-    To: phoneNumber,
-    From: twilioPhoneNumber,
-    Body: bodyMessage
+    to: phoneNumber,
+    from: twilioPhoneNumber,
+    body: bodyMessage
   }
 
   //Only add embedded media if received from previous promise, and payload is valid
   if (!_.isEmpty(mediaUrl)) {
-    params['MediaUrl'] = mediaUrl;
+    params['mediaUrl'] = mediaUrl;
   }
 
-  // Request a deep link URL from Branch Metrics
-  return Parse.Cloud.httpRequest({
-    method: 'POST',
-    url: 'https://'+ token + '@api.twilio.com/2010-04-01/Accounts/' + twilioSid + '/Messages.json',
-    body: serialize(params)
+  client.messages.create(params, function(err, message) { 
+    console.log(message.sid); 
   }).then(function(httpResponse) {
-    console.log("^^^^^^^^^ send SMS: json.url: " + JSON.stringify(httpResponse) + ", phoneNumber: " + phoneNumber + ", fromUser.get(fullName): " + fromUser.get('fullName'));
     promise.resolve(httpResponse);
-  }, function(httpResponse) {
-    console.error('^^^^^^^^^^ send SMS: getTrackURLAndSendSMS: Request failed with response code ' + JSON.stringify(httpResponse));
+  }), function(errorResponse) {
+    //Failure, probably due to with retreiving media. Fallback to http API send
+    sendSmsFallback(phoneNumber, twilioPhoneNumber, bodyMessage).then(function(response) {
+      promise.resolve(response);
+    }, function(error) {
+      promise.reject(error);
+    });
 
-    //Failure, probably due to with retreiving media. Fallback to normal send
-    var sendSmsSuccess = sendSmsFallback(phoneNumber, twilioPhoneNumber, bodyMessage);
-    if (!sendSmsSuccess) {
-      promise.reject(httpResponse);
-    }
-  });
+  };
 
   return promise;
 };
@@ -184,23 +181,23 @@ var sendSms = function(phoneNumber, fromUser, trackingURL, message, mediaUrl)
 * @param bodyMessage       string The SMS Message to be delivered
 **/
 var sendSmsFallback = function(phoneNumber, twilioPhoneNumber, bodyMessage, error) {
-  console.log("Attempting SMS Fallback...");
-  var params = "To=" + phoneNumber + "&From=" + twilioPhoneNumber + "&Body=" + encodeURIComponent(bodyMessage);
+  var promise = new Parse.Promise();
+  var params = "To=" + encodeURIComponent(phoneNumber) + "&From=" + encodeURIComponent(twilioPhoneNumber) + "&Body=" + encodeURIComponent(bodyMessage);
 
   // HTTP Request to twilio, return Promise
-  return Parse.Cloud.httpRequest({
+  Parse.Cloud.httpRequest({
     method: 'POST',
     url: 'https://'+ twilioSid + ':' + twilioToken + '@api.twilio.com/2010-04-01/Accounts/' + twilioSid + '/Messages.json',
     body: params
   }).then(function(httpResponse) {
     // success
-    console.log("SMS Fallback success! " + httpResponse.text);
-    return true;
+    promise.resolve(httpResponse);
   },function(httpResponse) {
     // error
-    console.error('SMS Fallback FAILED with response code ' + httpResponse.status);
-    return true;
+    promise.reject(httpResponse);
   });
+
+  return promise;
 }
 
 /**
