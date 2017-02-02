@@ -24,13 +24,13 @@ exports.send = function(type, toUsers, fromUser, post, group, text)
   Parse.Push.send({
     where: query, // Set our Installation query.
     data: alertPayload(type, fromUser, post, group, text)
-  }).then(function() {
+  }, {useMasterKey: true}).then(function(response) {
     // Push was successful
-    console.log('Sent push.');
-    promise.resolve();
+    //console.log('Sent push.');
+    promise.resolve(response);
   }, function(error) {
-    console.log("Push Error " + error.code + " : " + error.message);
-    promise.reject();
+    //console.log("Push Error " + error.code + " : " + error.message);
+    promise.reject(error);
   });
 
   return promise;
