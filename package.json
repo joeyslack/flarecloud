@@ -21,7 +21,7 @@
     "analytics-node": "^2.1.0",
     "cluster": "^0.7.7",
     "dotenv": "^2.0.0",
-    "express": "^4.14.0",
+    "express": "^4.14.1",
     "ffprobe": "^1.1.0",
     "ffprobe-static": "^2.0.0",
     "fluent-ffmpeg": "^2.1.0",
@@ -34,6 +34,6 @@
     "parse-server": "^2.3.2",
     "pg-native": "^1.10.0",
     "remote-file-size": "^3.0.3",
-    "twilio": "^2.9.1"
+    "twilio": "^2.11.1"
   }
 }
