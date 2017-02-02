@@ -76,7 +76,7 @@ Parse.Cloud.beforeSave('Flare', function(request, response) {
 //
 // @params request -
 //------------------------------------------------------------------------------
-Parse.Cloud.afterSave('Flare', function(request) {
+Parse.Cloud.afterSave('Flare', function(request, response) {
 
   // Because of a Parse cloud code bug .existed() does not work.
   // https://developers.facebook.com/bugs/1675561372679121/
@@ -89,7 +89,13 @@ Parse.Cloud.afterSave('Flare', function(request) {
   // afterSave (and beforeSave) only have 3 seconds to run
   // For any long running process call a background job which is allowed 15 mins
   // of runtime
-  runJobAfterSavePostObject(request);
+  //runJobAfterSavePostObject(request);
+
+  processNewPost(request).then(function() {
+    response.success("Process After Save Post Object succeeded");
+  },function(error){
+    response.error("Process After Save Post Object error: " + error.message);
+  });
 });
 
 //------------------------------------------------------------------------------
@@ -98,14 +104,15 @@ Parse.Cloud.afterSave('Flare', function(request) {
 // @params request - the request payload from the caller
 // @params status - response to send to the caller
 //------------------------------------------------------------------------------
+/*
 Parse.Cloud.job('afterSavePostObject', function(request, status) {
-
   processNewPost(request).then(function(){
     status.success("Process After Save Post Object succeeded");
   },function(error){
     status.error("Process After Save Post Object error: " + error.message);
   });
 });
+*/
 
 //------------------------------------------------------------------------------
 // function: incrementViews
