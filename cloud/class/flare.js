@@ -147,7 +147,7 @@ Parse.Cloud.define("incrementHearts", function(request, response) {
     
     return flareQuery.get(request.params.objectId, {useMasterKey: true});
   }).then(function(flare) {
-    if (sendPush) {
+    if (_sendPush) {
       return Push.send(_k.pushPayloadActivityTypeHeart, [flare.get("user", {useMasterKey: true})], request.user, flare);
     }
     else {
@@ -469,7 +469,7 @@ function incrementCountersForField(field, request)
     return Activity.itemForCounter(field, flare, author, requestUser);
   }).then(function(sendPush) {
     // Don't send push notification if target user is same as the current user (yourself)
-    if (flare.get(_k.flareUserKey, {useMasterKey: true}) == requestUser[_k.classObjectId]) {
+    if (flare.get(_k.flareUserKey) == requestUser[_k.classObjectId]) {
       sendPush = false;
     }
 
