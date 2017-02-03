@@ -138,31 +138,32 @@ Parse.Cloud.define("incrementViews", function(request,response) {
 // @params user - user who made the request
 // @params objectId - object ID of Flare to increment hearts counters
 //------------------------------------------------------------------------------
-Parse.Cloud.define("incrementHearts", function(request,response) {
+Parse.Cloud.define("incrementHearts", function(request, response) {
+  var promise = new Parse.Promise();
   var field = "hearts";
+  var _sendPush = false;
 
-  // Increment hearts count for Flare
   incrementCountersForField(field, request).then(function(sendPush) {
     var flareQuery = new Parse.Query(_k.flareTableName);
-
-    flareQuery.get(request.params.objectId, {useMasterKey: true}, {
-      success: function(flare) {
-        if (sendPush) {
-          Push.send(_k.pushPayloadActivityTypeHeart, [flare.get("user", {useMasterKey: true})], request.user, flare).then(function() {
-            response.success("Successfully incremented hearts, and sent push");
-          });
-        }
-        else {
-          response.success("Succesfully incremented hearts");
-        }
-      },
-      error: function(error) {
-        response.error("Failed to increment hearts for flare, could not get flare object: " + request.params.objectId);
-      }
-    });
+    _sendPush = sendPush;
+    
+    return flareQuery.get(request.params.objectId, {useMasterKey: true});
+  }).then(function(flare) {
+    if (sendPush) {
+      return Push.send(_k.pushPayloadActivityTypeHeart, [flare.get("user", {useMasterKey: true})], request.user, flare);
+    }
+    else {
+      promise.resolve(flare);
+    }
   }, function(error) {
-    response.error("Failed to increment hearts for flare: " + request.params.objectId);
+    promise.reject("Failed to increment hearts for flare: " + error.message);
+  }).then(function() {
+    promise.resolve("Successfully incremented hearts, and sent push");
+  }, function(error) {
+    promise.reject("Failed sending push notification for hearts: " + error.message);
   });
+
+  return promise;
 });
 
 //------------------------------------------------------------------------------
@@ -175,11 +176,10 @@ Parse.Cloud.define("incrementHearts", function(request,response) {
 // @params users -
 // @params date -
 //------------------------------------------------------------------------------
-exports.getPostsByUsers = function(users, date)
-{
+exports.getPostsByUsers = function(users, date) {
   var promise = new Parse.Promise();
-
   var postsQuery = _this.postsByUsersQuery(users, date);
+
   postsQuery.find({useMasterKey: true}).then(function(posts) {
     promise.resolve(posts);
   }, function(error) {
