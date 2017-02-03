@@ -74,9 +74,6 @@ function getAllNotificationsForUser(requestUser, date) {
 // @params date - current date
 //------------------------------------------------------------------------------
 function sortAndFilterAllNotifications(notifications, date) {
-  
-  var promise = new Parse.Promise();
-
   // Remove null items
   notifications = _.reject(notifications, function(item) { return _.isEmpty(item); });
 
@@ -89,18 +86,27 @@ function sortAndFilterAllNotifications(notifications, date) {
   });
 
   // Only show the notification activity that has a Flare object that has not expired 
-  sortedNotifications = _.reject(sortedNotifications, function(notification) {
-    if (_.isUndefined(notification) || _.isUndefined(notification.get(_k.activityFlareKey, {useMasterKey: true}))){
+  var sortedNotifications = _.reject(sortedNotifications, function(notification) {
+    if (_.isUndefined(notification) || _.isEmpty(notification)) {
       return false;
     }
 
-    var flareExpiresAtDate = new Date( notification.get(_k.activityFlareKey, {useMasterKey: true}).get(_k.flareExpiresAtKey, {useMasterKey: true}));
+    var notificationFlare = notification.get(_k.activityFlareKey);
+    if (_.isUndefined(notificationFlare) || _.isEmpty(notificationFlare)) {
+      return false;
+    }
+
+    var flareExpiresAtDate = new Date(notificationFlare.get(_k.flareExpiresAtKey));
     var yesterday = DateUtil.subtractDays(date,1);
+    
     return flareExpiresAtDate < yesterday;
   });
 
-  promise.resolve(sortedNotifications.reverse());
-  return promise;
+  if (sortedNotifications.length > 0) {
+    return sortedNotifications.reverse();
+  }
+
+  return;
 }
 
 //------------------------------------------------------------------------------
