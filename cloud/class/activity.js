@@ -248,7 +248,7 @@ function processNewActivity(payload)
 
   var promise = new Parse.Promise();
   var requestUser;
-  var requestParams = payload.params.request;
+  var requestParams = payload;
   var requestUserId = requestParams.object[_k.activityFromUserIdStringKey];
   var userQuery = new Parse.Query(Parse.User);
 
