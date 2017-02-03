@@ -9,7 +9,7 @@ var User = require('../class/user.js');
 //------------------------------------------------------------------------------
 
 var minMutualFriends = 2;
-var maxNumberOfSuggestedFriends = 100;
+var maxNumberOfSuggestedFriends = 20;
 var maxNumberOfFriendsSearched = 50;
 
 //------------------------------------------------------------------------------
@@ -22,24 +22,20 @@ var maxNumberOfFriendsSearched = 50;
 // @params request -
 // @params response - 
 //------------------------------------------------------------------------------
-Parse.Cloud.define("getSuggestedFriendsForUser", function(request,response) {
+Parse.Cloud.define("getSuggestedFriendsForUser", function(request, response) {
+  var promise = new  Parse.Promise();
   var currentUser = request.user;
   
   // Increment views count for Flare
   findSuggestedFriends(currentUser).then(function(suggestedFriends) {
     // Only return a suggested friends up to a maximum number
-    suggestedFriends = suggestedFriends.slice(0, maxNumberOfSuggestedFriends-1);
-
-    if (!_.isUndefined(suggestedFriends) && suggestedFriends.length > 0) {
-      response.success(suggestedFriends);
-    } else {
-      response.success();
-    }
+    suggestedFriends = suggestedFriends.slice(0, maxNumberOfSuggestedFriends-1);    
+    promise.resolve(suggestedFriends);
   }, function(error) {
-    console.log("getSuggestedFriendsForUser Error: " + error.message);
-    response.error(error);
+    promise.reject(error);
   });
-  
+
+  return promise;
 });
 
 //------------------------------------------------------------------------------
@@ -49,25 +45,27 @@ Parse.Cloud.define("getSuggestedFriendsForUser", function(request,response) {
 // @params response - 
 //------------------------------------------------------------------------------
 Parse.Cloud.define("getMutualFriendsForUser", function(request,response) {
+  var promise = new  Parse.Promise();
   var currentUser = request.user;
   var otherUserId = request.params.otherUserId;
-
   var usersOtherUserFollows = [];
 
   // find the othe user object, get users that friend follows
   User.getUserWithId(otherUserId).then(function(otherUser) {
+    
     return Following.getFollowingUsers(otherUser);
   }).then(function(following) {
     usersOtherUserFollows = following; 
+    
     return Following.getFollowingUsers(currentUser);
   }).then(function(usersCurrentUserFollows) {
     var mutualFriends = Utility.collectionIntersection(usersCurrentUserFollows, usersOtherUserFollows);
-    response.success(mutualFriends);
+    promise.resolve(mutualFriends);
   }, function(error) {
-    console.log("getMutualFriendsForUser Error: " + error.message);
-    response.error(error);
+    promise.reject(error);
   });
   
+  return promise;
 });
 
 //------------------------------------------------------------------------------
@@ -80,7 +78,6 @@ Parse.Cloud.define("getMutualFriendsForUser", function(request,response) {
 // @params me - user who requested the notification activity
 //------------------------------------------------------------------------------
 function findSuggestedFriends(me) {
-
   var promise = new  Parse.Promise();
 
   var numberOfFriendsSearched = 0;
