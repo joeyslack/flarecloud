@@ -23,19 +23,16 @@ var maxNumberOfFriendsSearched = 50;
 // @params response - 
 //------------------------------------------------------------------------------
 Parse.Cloud.define("getSuggestedFriendsForUser", function(request, response) {
-  var promise = new  Parse.Promise();
   var currentUser = request.user;
   
   // Increment views count for Flare
   findSuggestedFriends(currentUser).then(function(suggestedFriends) {
     // Only return a suggested friends up to a maximum number
     suggestedFriends = suggestedFriends.slice(0, maxNumberOfSuggestedFriends-1);    
-    promise.resolve(suggestedFriends);
+    response.success(suggestedFriends);
   }, function(error) {
-    promise.reject(error);
+    response.error(error);
   });
-
-  return promise;
 });
 
 //------------------------------------------------------------------------------
@@ -45,7 +42,6 @@ Parse.Cloud.define("getSuggestedFriendsForUser", function(request, response) {
 // @params response - 
 //------------------------------------------------------------------------------
 Parse.Cloud.define("getMutualFriendsForUser", function(request,response) {
-  var promise = new  Parse.Promise();
   var currentUser = request.user;
   var otherUserId = request.params.otherUserId;
   var usersOtherUserFollows = [];
@@ -60,12 +56,10 @@ Parse.Cloud.define("getMutualFriendsForUser", function(request,response) {
     return Following.getFollowingUsers(currentUser);
   }).then(function(usersCurrentUserFollows) {
     var mutualFriends = Utility.collectionIntersection(usersCurrentUserFollows, usersOtherUserFollows);
-    promise.resolve(mutualFriends);
+    response.success(mutualFriends);
   }, function(error) {
-    promise.reject(error);
+    response.error(error);
   });
-  
-  return promise;
 });
 
 //------------------------------------------------------------------------------

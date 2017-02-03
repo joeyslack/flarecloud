@@ -129,7 +129,6 @@ Parse.Cloud.define("incrementViews", function(request,response) {
   }, function(error) {
     response.error("Failed to increment views for flare: " + request.params.objectId);
   });
-
 });
 
 //------------------------------------------------------------------------------
@@ -139,7 +138,6 @@ Parse.Cloud.define("incrementViews", function(request,response) {
 // @params objectId - object ID of Flare to increment hearts counters
 //------------------------------------------------------------------------------
 Parse.Cloud.define("incrementHearts", function(request, response) {
-  var promise = new Parse.Promise();
   var field = "hearts";
   var _sendPush = false;
 
@@ -153,17 +151,15 @@ Parse.Cloud.define("incrementHearts", function(request, response) {
       return Push.send(_k.pushPayloadActivityTypeHeart, [flare.get("user", {useMasterKey: true})], request.user, flare);
     }
     else {
-      promise.resolve(flare);
+      response.success(flare);
     }
   }, function(error) {
-    promise.reject("Failed to increment hearts for flare: " + error.message);
+    response.error("Failed to increment hearts for flare: " + error.message);
   }).then(function() {
-    promise.resolve("Successfully incremented hearts, and sent push");
+    response.success("Successfully incremented hearts, and sent push");
   }, function(error) {
-    promise.reject("Failed sending push notification for hearts: " + error.message);
+    response.error(error);
   });
-
-  return promise;
 });
 
 //------------------------------------------------------------------------------
@@ -428,9 +424,9 @@ function processNewPost (payload)
     var postQuery = new Parse.Query(Flare);
 
     // Hydrate the post object
-    return postQuery.get(postId, {useMasterKey: true});
+    return postQuery.get(postId);
   }).then(function(post) {
-    var newPostCreatedAt = post.get(_k.classCreatedAt, {useMasterKey: true});
+    var newPostCreatedAt = post.get(_k.classCreatedAt);
     var promises = [];
 
     _.each(processNewPostFunctions, function(fnc) {

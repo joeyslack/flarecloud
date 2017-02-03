@@ -29,7 +29,7 @@ var notificationFunctions = [
 // @params request -
 // @params response - 
 //------------------------------------------------------------------------------
-Parse.Cloud.define("getAllNotificationsForUser", function(request,response) {
+Parse.Cloud.define("getAllNotificationsForUser", function(request, response) {
   var currentUser = request.user;
   var currentDate = new Date();
 
@@ -37,6 +37,7 @@ Parse.Cloud.define("getAllNotificationsForUser", function(request,response) {
   getAllNotificationsForUser(currentUser, currentDate).then(
     function(commentNotifications, commentNotificationsForFollPostsUserFollows, newStoryNotifications, mentionNotifications, viewedMentionNotifications, followedNotifications, last24HrsFollowedNotifications, followRequestNotifications, heartNotifications) {
       var notifications = commentNotifications.concat(commentNotificationsForFollPostsUserFollows, newStoryNotifications, mentionNotifications, viewedMentionNotifications, followedNotifications, last24HrsFollowedNotifications, followRequestNotifications, heartNotifications);
+      
       return sortAndFilterAllNotifications(notifications, currentDate);
     }).then(function(sortedNotifications) {
       response.success(sortedNotifications);
@@ -57,7 +58,6 @@ Parse.Cloud.define("getAllNotificationsForUser", function(request,response) {
 // @params date - current date
 //------------------------------------------------------------------------------
 function getAllNotificationsForUser(requestUser, date) {
-
   var promises = [];
 
   _.each(notificationFunctions, function(fnc) {
