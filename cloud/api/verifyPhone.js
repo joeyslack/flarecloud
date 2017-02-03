@@ -70,15 +70,14 @@ Parse.Cloud.define("verifyCode", function(request, response) {
 
 	if (phoneNumber && verificationCode) {
 		Parse.User.logIn(phoneNumber, secretPasswordToken + verificationCode).then(function (user) {
-      	
-      	return user.destroy({useMasterKey: true});
-    }).then(function() {
+	    	return user.destroy({useMasterKey: true});
+	    }).then(function() {
 			response.success();
 		}, function (err) {
 			response.error(err);
 		});
 	} else {
-		response.error('Invalid parameters.');
+		return response.error('Invalid parameters.');
 	}
 });
 
