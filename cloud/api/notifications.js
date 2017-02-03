@@ -91,6 +91,11 @@ function sortAndFilterAllNotifications(notifications, date) {
       return false;
     }
 
+    console.log("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
+    console.log(JSON.stringify(notification));
+    console.log(notification);
+    console.log("******************************************");
+
     var notificationFlare = notification.get(_k.activityFlareKey);
     if (_.isUndefined(notificationFlare) || _.isEmpty(notificationFlare)) {
       return false;
