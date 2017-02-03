@@ -57,14 +57,22 @@ var afterSaveActivityProcessTypes = [
 // @params request -
 //------------------------------------------------------------------------------
 Parse.Cloud.afterSave('Activity', function(request) {
-
+  var promise = new Parse.Promise();
   var activityType = request.object.get(_k.activityTypeKey, {useMasterKey: true});
 
   if (_.indexOf(afterSaveActivityProcessTypes, activityType) !== -1) {
     // afterSave (and beforeSave) only have 3 seconds to run
     // For any long running process call a background job which is allowed 15 mins
     // of runtime
-    runJobAfterSaveActivityObject(request);
+    //runJobAfterSaveActivityObject(request);
+
+    processNewActivity(request).then(function(){
+      promise.resolve("Process afterSaveActivityObject succeeded");
+    },function(error){
+      promise.reject("Process afterSaveActivityObject error: " + error.message);
+    });
+
+    return promise; 
   }
 });
 
@@ -75,7 +83,6 @@ Parse.Cloud.afterSave('Activity', function(request) {
 // @params response - response to send to the caller
 //------------------------------------------------------------------------------
 Parse.Cloud.job('afterSaveActivityObject', function(request, status) {
-
   processNewActivity(request).then(function(){
     status.success("Process afterSaveActivityObject succeeded");
   },function(error){
