@@ -205,12 +205,12 @@ var alertPayload = function(type, fromUser, post, group, text)
 
   var fromUserName;
   if (!_.isUndefined(fromUser)) {
-    fromUserName = fromUser.get(_k.userFullNameKey);
+    fromUserName = fromUser.get(_k.userFullNameKey, {useMasterKey: true});
   }
 
   var groupName;
   if (!_.isUndefined(group)) {
-    groupName = group.get(_k.groupNameKey);
+    groupName = group.get(_k.groupNameKey, {useMasterKey: true});
   }
 
   // Generate the push notification payload

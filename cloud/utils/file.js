@@ -43,9 +43,9 @@ Parse.Cloud.job("deleteExpiredFiles", function(request, status) {
     //console.log("DELETE: " + post.id + " fromUser: " + post.get(_k.flareUserKey).get(_k.userFullNameKey) + " expirestAt: " + post.get(_k.flareExpiresAtKey));
     // Get the PFFile names for 
     var baseURL = "https://api.parse.com/1/files/";
-    var imageURL = post.get(_k.flareImageKey);
-    var thumbnailURL = post.get(_k.flareThumbnailKey);
-    var videoURL = post.get(_k.flareVideoKey);
+    var imageURL = post.get(_k.flareImageKey, {useMasterKey: true});
+    var thumbnailURL = post.get(_k.flareThumbnailKey, {useMasterKey: true});
+    var videoURL = post.get(_k.flareVideoKey, {useMasterKey: true});
 
     var fileURLs = _.compact([imageURL, thumbnailURL, videoURL]); //remove all falsy values
 

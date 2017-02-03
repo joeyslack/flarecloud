@@ -20,10 +20,10 @@ exports.autoFollowNewUser = function(newUser)
   var promise = new Parse.Promise();
 
   // Query for any invite for the new user, based on the phone number supplied 
-  var phoneNumber = newUser.get(_k.userDeprecatedPhoneNumberKey);
+  var phoneNumber = newUser.get(_k.userDeprecatedPhoneNumberKey, {useMasterKey: true});
   phoneNumber = !_.isUndefined(phoneNumber) ? phoneNumber : "";
 
-  var normalizedPhoneNumber = newUser.get(_k.userPhoneNumberKey);
+  var normalizedPhoneNumber = newUser.get(_k.userPhoneNumberKey, {useMasterKey: true});
   normalizedPhoneNumber = !_.isUndefined(normalizedPhoneNumber) ? normalizedPhoneNumber : "";
 
   console.log(" autoFollowNewUser: normalizedPhoneNumber: " + normalizedPhoneNumber);
@@ -57,7 +57,7 @@ exports.autoFollowNewUser = function(newUser)
 
       _.each(objects, function (object) {
         // Save a follow object for each pending invite for thie new user
-        var fromUser = object.get("fromUser");
+        var fromUser = object.get("fromUser", {useMasterKey: true});
         followPromises.push(followUser(fromUser, newUser)); 
 
         // TODO: maybe send a push notification to the existing user that a friend has joined flare
@@ -94,10 +94,10 @@ exports.autoFollowNewUserGroups = function(newUser)
   var promise = new Parse.Promise();
 
   // Query for any invite for the new user, based on the phone number supplied 
-  var phoneNumber = newUser.get(_k.userDeprecatedPhoneNumberKey);
+  var phoneNumber = newUser.get(_k.userDeprecatedPhoneNumberKey, {useMasterKey: true});
   phoneNumber = !_.isUndefined(phoneNumber) ? phoneNumber : "";
 
-  var normalizedPhoneNumber = newUser.get(_k.userPhoneNumberKey);
+  var normalizedPhoneNumber = newUser.get(_k.userPhoneNumberKey, {useMasterKey: true});
   normalizedPhoneNumber = !_.isUndefined(normalizedPhoneNumber) ? normalizedPhoneNumber : "";
 
   console.log("normalizedPhoneNumber: " + normalizedPhoneNumber);
@@ -131,8 +131,8 @@ exports.autoFollowNewUserGroups = function(newUser)
 
       _.each(objects, function (object) {
         // Save a follow object for each pending invite for thie new user
-        var group = object.get(_k.inviteGroupKey);
-        var fromUser = object.get(_k.inviteFromUserKey);
+        var group = object.get(_k.inviteGroupKey, {useMasterKey: true});
+        var fromUser = object.get(_k.inviteFromUserKey, {useMasterKey: true});
 
         GroupMembership.newUserJoinedGroup(group, fromUser, newUser); 
 
@@ -150,7 +150,7 @@ exports.autoFollowNewUserGroups = function(newUser)
   }).then(function(){
     promise.resolve();
   }, function(error) {
-    console.log("`Error - adding user: " + newUser.get(_k.userFullNameKey) + "(" + newUser.id +") to the group: " + group.id + " error: "+ error.message);
+    console.log("`Error - adding user: " + newUser.get(_k.userFullNameKey, {useMasterKey: true}) + "(" + newUser.id +") to the group: " + group.id + " error: "+ error.message);
     promise.reject(error);
   });
 
@@ -188,7 +188,7 @@ exports.saveForPhoneNumbers = function(phoneNumbers, fromUser, channel, group)
 
     var inviteExistsForPhoneNumbers = [];
     _.each(invites, function(invite) {
-      var invitedPhoneNumber = invite.get(_k.inviteToPhoneNumberKey);
+      var invitedPhoneNumber = invite.get(_k.inviteToPhoneNumberKey, {useMasterKey: true});
       inviteExistsForPhoneNumbers.push(invitedPhoneNumber);
     });
 
@@ -281,7 +281,7 @@ var saveInvite = function(fromUser, phoneNumber, channel, group)
   invite.setACL(inviteACL);
 
   invite.save(null, {useMasterKey: true}).then(function(invite) {
-    console.log("Invite saved: fromUser: " + invite.get(_k.inviteFromUserIdStringKey) + " phoneNumber: " + invite.get(_k.inviteToPhoneNumberKey) + " channel: " + invite.get(_k.inviteChannelKey) + " group: " + invite.get(_k.inviteGroupIdStringKey));
+    console.log("Invite saved: fromUser: " + invite.get(_k.inviteFromUserIdStringKey, {useMasterKey: true}) + " phoneNumber: " + invite.get(_k.inviteToPhoneNumberKey, {useMasterKey: true}) + " channel: " + invite.get(_k.inviteChannelKey, {useMasterKey: true}) + " group: " + invite.get(_k.inviteGroupIdStringKey, {useMasterKey: true}));
 
     promise.resolve();
   }, function(invite, error) {

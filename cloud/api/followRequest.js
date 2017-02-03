@@ -28,7 +28,7 @@ Parse.Cloud.define("acceptFollowRequest", function(request,response) {
 
     // Save a following activity for each follow request that was accepted by the current user
     _.each(activities, function(activity){
-      promises.push(ActivityClass.followUser(activity.get(_k.activityFromUserKey), currentUser));
+      promises.push(ActivityClass.followUser(activity.get(_k.activityFromUserKey, {useMasterKey: true}), currentUser));
     });
 
     return Parse.Promise.when(promises);
@@ -91,7 +91,7 @@ var deleteFollowRequests = function(fromUsers, toUser)
     var promises = [];
 
     _.each(activities, function(activity){
-      console.log(" Delete: follow request activity: " + activity.get(_k.activityFromUserIdStringKey) + " type: " + activity.get(_k.activityTypeKey));
+      console.log(" Delete: follow request activity: " + activity.get(_k.activityFromUserIdStringKey, {useMasterKey: true}) + " type: " + activity.get(_k.activityTypeKey, {useMasterKey: true}));
       promises.push(activity.destroy({useMasterKey: true}));
     });
 

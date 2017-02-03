@@ -36,7 +36,7 @@ Parse.Cloud.define("addMembersToGroup", function(request,response) {
 
     var usersInGroup = [];
     _.each(memberships, function(membership) {
-      usersInGroup.push(membership.get(_k.groupMembershipUserKey));
+      usersInGroup.push(membership.get(_k.groupMembershipUserKey, {useMasterKey: true}));
     });
 
     var userObjects = addMemberUsers;
@@ -48,13 +48,13 @@ Parse.Cloud.define("addMembersToGroup", function(request,response) {
 
     //If no new members to add then return an error
     if (addMemberUsers.length === 0 && userObjects.length > 0) {
-      var groupName = _.isEmpty(group) ? "" : group.get(_k.groupNameKey);
+      var groupName = _.isEmpty(group) ? "" : group.get(_k.groupNameKey, {useMasterKey: true});
       var groupDescription = " already in the " + groupName + " group.";
 
       var namesString = "";
 
       for (var i = 0; i < userObjects.length; i++) {
-         var name = userObjects[i].get(_k.userFullNameKey);
+         var name = userObjects[i].get(_k.userFullNameKey, {useMasterKey: true});
          namesString += name;
 
          if (userObjects.length === 2) {
@@ -184,7 +184,7 @@ exports.sendNotificationToGroup = function(pushPayloadType, group, post, fromUse
     // For user, auto follow
     if (objects.length > 0) {
       _.each(objects, function (object) {
-        member = object.get(_k.groupMembershipUserKey);
+        member = object.get(_k.groupMembershipUserKey, {useMasterKey: true});
 
         if (fromUser.id != member.id) {
           toUsers.push(member);
@@ -314,7 +314,7 @@ var saveGroupMembership = function(group, createdBy, user, rank)
   groupMem.setACL(groupMemACL);
 
   groupMem.save(null, {useMasterKey: true}).then(function(membership) {
-    console.log("Group Membership saved: group: " + membership.get(_k.groupMembershipGroupKey).id + " user: " + membership.get(_k.groupMembershipUserKey).id + " rank: " + membership.get(_k.groupMembershipRankKey));
+    console.log("Group Membership saved: group: " + membership.get(_k.groupMembershipGroupKey, {useMasterKey: true}).id + " user: " + membership.get(_k.groupMembershipUserKey, {useMasterKey: true}).id + " rank: " + membership.get(_k.groupMembershipRankKey, {useMasterKey: true}));
     promise.resolve(membership);
   }, function(object, error) {
     console.log("failed to create new group membership object with error code: " + error.message);

@@ -90,11 +90,11 @@ function sortAndFilterAllNotifications(notifications, date) {
 
   // Only show the notification activity that has a Flare object that has not expired 
   sortedNotifications = _.reject(sortedNotifications, function(notification) {
-    if (_.isUndefined(notification) || _.isUndefined(notification.get(_k.activityFlareKey))){
+    if (_.isUndefined(notification) || _.isUndefined(notification.get(_k.activityFlareKey, {useMasterKey: true}))){
       return false;
     }
 
-    var flareExpiresAtDate = new Date( notification.get(_k.activityFlareKey).get(_k.flareExpiresAtKey));
+    var flareExpiresAtDate = new Date( notification.get(_k.activityFlareKey, {useMasterKey: true}).get(_k.flareExpiresAtKey, {useMasterKey: true}));
     var yesterday = DateUtil.subtractDays(date,1);
     return flareExpiresAtDate < yesterday;
   });
@@ -206,12 +206,12 @@ function filterCommentNotificationsForPostsUserFollows(requestUser, notification
     // Group by Post ID
     
     var normalizedNotifications = _.reject(notifications, function(notification) {
-      var flare = notification.get(_k.activityFlareKey);
+      var flare = notification.get(_k.activityFlareKey, {useMasterKey: true});
       return _.isUndefined(flare);
     });
 
     var buckets = _.groupBy(normalizedNotifications, function(notification) { 
-      return notification.get(_k.activityFlareKey).id;
+      return notification.get(_k.activityFlareKey, {useMasterKey: true}).id;
     });
 
     // Filter the comments
@@ -222,7 +222,7 @@ function filterCommentNotificationsForPostsUserFollows(requestUser, notification
       
       // Find the first comment by the request user
       var myFirstCommentIndex = _.findIndex(comments, function(comment) {
-        return comment.get(_k.activityFromUserIdStringKey) == requestUser.id;
+        return comment.get(_k.activityFromUserIdStringKey, {useMasterKey: true}) == requestUser.id;
       });
 
       var commentsAfterMine = (myFirstCommentIndex != -1) ? comments.slice(myFirstCommentIndex+1) : [];
@@ -329,12 +329,12 @@ function getViewedMentionNotifications(requestUser, date) {
     var mentionedActivitiesArray = [];
 
     normalizedMentionedActivities = _.reject(mentionedActivities, function(activity) {
-      return _.isUndefined(activity.get(_k.activityFlareKey));
+      return _.isUndefined(activity.get(_k.activityFlareKey, {useMasterKey: true}));
     });
 
     // Array of key/values indicating the mention activity created by user 
     _.each(normalizedMentionedActivities, function(mention) {
-      var object = {"toUserIdString" : mention.get(_k.activityToUserIdStringKey), "flareId": mention.get(_k.activityFlareKey).id};
+      var object = {"toUserIdString" : mention.get(_k.activityToUserIdStringKey, {useMasterKey: true}), "flareId": mention.get(_k.activityFlareKey, {useMasterKey: true}).id};
       mentionedActivitiesArray.push(object);
     });
 
@@ -342,11 +342,11 @@ function getViewedMentionNotifications(requestUser, date) {
     if (!_.isUndefined(viewedActivities) && viewedActivities.length > 0) {
 
       normalizedViewedActivities = _.reject(viewedActivities, function(activity) {
-        return _.isUndefined(activity.get(_k.activityFlareKey));
+        return _.isUndefined(activity.get(_k.activityFlareKey, {useMasterKey: true}));
       });
 
       filteredNotifications = _.filter(normalizedViewedActivities, function(activity) {
-        return _.where(mentionedActivitiesArray, {"toUserIdString": activity.get(_k.activityFromUserIdStringKey), "flareId": activity.get(_k.activityFlareKey).id}).length > 0;
+        return _.where(mentionedActivitiesArray, {"toUserIdString": activity.get(_k.activityFromUserIdStringKey), "flareId": activity.get(_k.activityFlareKey, {useMasterKey: true}).id}).length > 0;
       });
     }
     
@@ -382,7 +382,7 @@ function getFollowingUsersYouDoNotFollowNotifications(requestUser, date) {
     var filteredNotifications = rejectUsersFromList(followedNotifications, followingUsers);
     
     filteredNotifications = _.uniq(filteredNotifications, function(item) { 
-      return item.get(_k.activityFromUserIdStringKey);
+      return item.get(_k.activityFromUserIdStringKey, {useMasterKey: true});
     });
 
     promise.resolve(filteredNotifications);  
@@ -453,7 +453,7 @@ function getFollowRequestNotifications(requestUser, date) {
 function rejectUsersFromList(list, users) {
   var filteredList = _.reject(list, function(activity) {
     //return user.id == activity.get(_k.activityFromUserIdStringKey);
-    return _.where(users, {id: activity.get(_k.activityFromUserIdStringKey)}).length > 0;
+    return _.where(users, {id: activity.get(_k.activityFromUserIdStringKey, {useMasterKey: true})}).length > 0;
   });
 
   return filteredList;
@@ -679,7 +679,7 @@ function viewedMentionNotificationsQuery(requestUser, date, mentionActivities) {
   // Viewed the mention
   var mentionFlares = [];
   _.each(mentionActivities, function(activity) {
-    mentionFlares.push(activity.get(_k.activityFlareKey));
+    mentionFlares.push(activity.get(_k.activityFlareKey, {useMasterKey: true}));
   });
   
   activityQuery.containedIn(_k.activityFlareKey, mentionFlares);

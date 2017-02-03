@@ -58,7 +58,7 @@ var afterSaveActivityProcessTypes = [
 //------------------------------------------------------------------------------
 Parse.Cloud.afterSave('Activity', function(request) {
 
-  var activityType = request.object.get(_k.activityTypeKey);
+  var activityType = request.object.get(_k.activityTypeKey, {useMasterKey: true});
 
   if (_.indexOf(afterSaveActivityProcessTypes, activityType) !== -1) {
     // afterSave (and beforeSave) only have 3 seconds to run
@@ -246,7 +246,7 @@ function processNewActivity(payload)
   var userQuery = new Parse.Query(Parse.User);
 
   // Hydrate the parse user object
-  userQuery.get(requestUserId).then(function(user) {
+  userQuery.get(requestUserId, {useMasterKey: true}).then(function(user) {
     requestUser = user;
     
     var activityId = requestParams.object[_k.classObjectId];
@@ -254,11 +254,11 @@ function processNewActivity(payload)
     var activityQuery = new Parse.Query(Activity);
 
     // Hydrate the post object
-    return activityQuery.get(activityId);
+    return activityQuery.get(activityId, {useMasterKey: true});
   }).then(function(activityObject) {
     if (activityObject) {
-      var activityCreatedAt = activityObject.get(_k.classCreatedAt);
-      var activityType = activityObject.get(_k.activityTypeKey);
+      var activityCreatedAt = activityObject.get(_k.classCreatedAt, {useMasterKey: true});
+      var activityType = activityObject.get(_k.activityTypeKey, {useMasterKey: true});
       var promises = [];
 
       _.each(processNewActivityFunctions, function(fnc) {
@@ -296,10 +296,10 @@ function processNewUserStory (requestUser, type, activityObject, date)
   Follower.getFollowersExcludeUsersWhoBlockMeAndWhoIBlock(requestUser).then(function(followers) {
     requestUsersFollowers = followers;
   
-    var post = activityObject.get(_k.activityFlareKey);
+    var post = activityObject.get(_k.activityFlareKey, {useMasterKey: true});
     return post.fetch();
   }).then(function(postObject) {
-    group = postObject.get(_k.flareGroupKey);
+    group = postObject.get(_k.flareGroupKey, {useMasterKey: true});
 
     if(_.isUndefined(group) || group.length === 0) {
       return Push.send(_k.pushPayloadActivityTypeNewUserStory, requestUsersFollowers, requestUser, postObject);
@@ -329,7 +329,7 @@ function processNewGroupStory (requestUser, type, activityObject, date)
 
   var promise = new Parse.Promise();
 
-  var postObject = activityObject.get(_k.activityFlareKey);
+  var postObject = activityObject.get(_k.activityFlareKey, {useMasterKey: true});
   
   var Flare = Parse.Object.extend(_k.flareTableName);
   var postQuery = new Parse.Query(Flare);
@@ -338,7 +338,7 @@ function processNewGroupStory (requestUser, type, activityObject, date)
   postQuery.include(_k.flareGroupKey); //include the group object
   
   postQuery.first({useMasterKey: true}).then(function(post){
-    var group = !_.isUndefined(post) ? post.get(_k.flareGroupKey) : undefined;
+    var group = !_.isUndefined(post) ? post.get(_k.flareGroupKey, {useMasterKey: true}) : undefined;
     if (!_.isUndefined(group)){ 
       return GroupMembership.sendNotificationToGroup(_k.pushPayloadActivityTypeNewGroupStory, group, post, requestUser);
     } else {
@@ -366,14 +366,14 @@ function processFollowOrFollowRequest (requestUser, type, activityObject, date)
   }
   
   var promise = new Parse.Promise();
-  var toUser = activityObject.get(_k.activityToUserKey);
+  var toUser = activityObject.get(_k.activityToUserKey, {useMasterKey: true});
 
   // Check for blocking
   Block.thisUserBlockActivityQuery(toUser).find({useMasterKey: true}).then(function(blockedList) {
     // If block list is found for target follow, see if it matches the request user's id
     if (blockedList) {
       return _.find(blockedList, function(item) {
-        return item.get(_k.activityToUserIdStringKey) == requestUser.id;
+        return item.get(_k.activityToUserIdStringKey, {useMasterKey: true}) == requestUser.id;
       });
     }
 
@@ -406,7 +406,7 @@ function processComment (requestUser, type, activityObject, date)
 
   var promise = new Parse.Promise();
   
-  var post = activityObject.get(_k.activityFlareKey);
+  var post = activityObject.get(_k.activityFlareKey, {useMasterKey: true});
   var mentionedUsers= [];
   var toUsers = [];
 
@@ -420,7 +420,7 @@ function processComment (requestUser, type, activityObject, date)
 
     // Only send comment push notificaiton to comment authors that have not been mentioned
     _.each(commentActivities, function(activity) {
-      var commentAuthor =  activity.get(_k.activityFromUserKey);
+      var commentAuthor =  activity.get(_k.activityFromUserKey, {useMasterKey: true});
       var isCommentAuthorInToUsers = _.findWhere(toUsers, {id: commentAuthor.id});
       var isCommentAuthorInMentionedUsers = _.findWhere(mentionedUsers, {id: commentAuthor.id});
 
@@ -431,8 +431,8 @@ function processComment (requestUser, type, activityObject, date)
 
     return post.fetch();
   }).then(function(postObject){
-    var comment = activityObject.get(_k.activityContentKey);
-    var postAuthor = postObject.get(_k.flareUserKey);
+    var comment = activityObject.get(_k.activityContentKey, {useMasterKey: true});
+    var postAuthor = postObject.get(_k.flareUserKey, {useMasterKey: true});
     var isPostAuthorInToUsers = _.findWhere(toUsers, {id: postAuthor.id});
 
     if (_.isUndefined(isPostAuthorInToUsers) && requestUser.id !== postAuthor.id) {
@@ -483,10 +483,10 @@ function processMentionedPhoneNumbers (requestUser, type, activityObject)
 
   var promise = new Parse.Promise();
 
-  var phoneNumbers = activityObject.get(_k.activityToUserPhoneNumberKey);
+  var phoneNumbers = activityObject.get(_k.activityToUserPhoneNumberKey, {useMasterKey: true});
   var fromUser = requestUser;
-  var flare = activityObject.get(_k.activityFlareKey);
-  var content = activityObject.get(_k.activityContentKey);
+  var flare = activityObject.get(_k.activityFlareKey, {useMasterKey: true});
+  var content = activityObject.get(_k.activityContentKey, {useMasterKey: true});
 
   // Only process @mention for comments/captions on Flare objects
   if (_.isUndefined(phoneNumbers) || _.isUndefined(fromUser)) {
@@ -577,7 +577,7 @@ function processMentionReceipt(flare, userWhoViewed)
 
       var mentionCreators = [];
       _.each(objects, function (object) {
-          var mentionAuthor = object.get(_k.activityFromUserKey);
+          var mentionAuthor = object.get(_k.activityFromUserKey, {useMasterKey: true});
           //console.log("processMentionReceipt: mentionCreator: " + mentionAuthor.get(_k.userFullNameKey));
           mentionCreators.push(mentionAuthor);
       });
@@ -616,10 +616,10 @@ function saveMentionActivity(content, flare, phoneNumbers, toUsers, fromUser)
 
   _.each(toUsers, function(toUser){ 
     // remove the phone number from the phone number list, the remaining numbers will be sent an SMS through twilio
-    var formattedPhoneNumber = toUser.get(_k.userDeprecatedPhoneNumberKey); 
+    var formattedPhoneNumber = toUser.get(_k.userDeprecatedPhoneNumberKey, {useMasterKey: true}); 
     formattedPhoneNumber = !_.isUndefined(formattedPhoneNumber) ? formattedPhoneNumber : "";
 
-    var normalizedPhoneNumber = toUser.get(_k.userPhoneNumberKey);
+    var normalizedPhoneNumber = toUser.get(_k.userPhoneNumberKey, {useMasterKey: true});
     normalizedPhoneNumber = !_.isUndefined(normalizedPhoneNumber) ? normalizedPhoneNumber : "";
 
     filteredPhoneNumbers = _.without(phoneNumbers, formattedPhoneNumber, normalizedPhoneNumber);

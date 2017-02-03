@@ -145,10 +145,10 @@ Parse.Cloud.define("incrementHearts", function(request,response) {
   incrementCountersForField(field, request).then(function(sendPush) {
     var flareQuery = new Parse.Query(_k.flareTableName);
 
-    flareQuery.get(request.params.objectId, {
+    flareQuery.get(request.params.objectId, {useMasterKey: true}, {
       success: function(flare) {
         if (sendPush) {
-          Push.send(_k.pushPayloadActivityTypeHeart, [flare.get("user")], request.user, flare).then(function() {
+          Push.send(_k.pushPayloadActivityTypeHeart, [flare.get("user", {useMasterKey: true})], request.user, flare).then(function() {
             response.success("Successfully incremented hearts, and sent push");
           });
         }
@@ -411,30 +411,26 @@ function processNewPost (payload)
 
   if (_.isUndefined(payload)) {
     promise.resolve();
+
     return promise;
   }
 
-  var requestParams = payload.params.request;
-
-  var requestUser = _.isNull(requestParams.user) ? requestParams.object[_k.flareUserKey] : requestParams.user;
-  var requestUserId = requestUser[_k.classObjectId];
+  //var requestParams = payload.params.request;
+  var requestUser = _.isNull(payload.user) ? payload.object.get(_k.flareUserKey, {useMasterKey: true}) : payload.user;
+  var requestUserId = requestUser.id;
   var userQuery = new Parse.Query(Parse.User);
 
   // Hydrate the parse user object
-  userQuery.get(requestUserId).then(function(user) {
+  userQuery.get(requestUserId, {useMasterKey: true}).then(function(user) {
     requestUser = user;
-
-    var postId = requestParams.object[_k.classObjectId];
-
+    var postId = payload.object.id;
     var Flare = Parse.Object.extend(_k.flareTableName);
     var postQuery = new Parse.Query(Flare);
 
     // Hydrate the post object
-    return postQuery.get(postId);
+    return postQuery.get(postId, {useMasterKey: true});
   }).then(function(post) {
-
-    var newPostCreatedAt = post.get(_k.classCreatedAt);
-
+    var newPostCreatedAt = post.get(_k.classCreatedAt, {useMasterKey: true});
     var promises = [];
 
     _.each(processNewPostFunctions, function(fnc) {
@@ -477,7 +473,7 @@ function incrementCountersForField(field, request)
     return Activity.itemForCounter(field, flare, author, requestUser);
   }).then(function(sendPush) {
     // Don't send push notification if target user is same as the current user (yourself)
-    if (flare.get(_k.flareUserKey) == requestUser[_k.classObjectId]) {
+    if (flare.get(_k.flareUserKey, {useMasterKey: true}) == requestUser[_k.classObjectId]) {
       sendPush = false;
     }
 
@@ -531,8 +527,8 @@ function incrementAuthorCounter(field, flare)
   var query = new Parse.Query(Flare);
   query.include(_k.flareUserKey);
 
-  query.get(flare.id).then(function(flare) {
-    author = flare.get(_k.flareUserKey);
+  query.get(flare.id, {useMasterKey: true}).then(function(flare) {
+    author = flare.get(_k.flareUserKey, {useMasterKey: true});
     author.increment(field);
     return author.save(null, {useMasterKey: true});
   }).then (function() {
@@ -571,7 +567,7 @@ function processNewUserStory(requestUser, post, createdAt)
 
     // If the last flare was greater than 24 hours then send off a push notifcaiton
     // to all his followers excluding those he blocks
-    var previousPostExpiresAt = previousPost.get(_k.flareExpiresAtKey);
+    var previousPostExpiresAt = previousPost.get(_k.flareExpiresAtKey, {useMasterKey: true});
 
     if (previousPostExpiresAt < createdAt) {
       return Activity.saveNewUserStory(requestUser, post);
@@ -597,7 +593,7 @@ function processNewUserStory(requestUser, post, createdAt)
 //------------------------------------------------------------------------------
 function processNewGroupStory(requestUser, post, createdAt)
 {
-  var group = post.get(_k.flareGroupKey);
+  var group = post.get(_k.flareGroupKey, {useMasterKey: true});
 
   // Only process group posts
   if (_.isUndefined(group)) {
@@ -617,7 +613,7 @@ function processNewGroupStory(requestUser, post, createdAt)
 
     // If the last flare was greater than 24 hours then send off a push notifcaiton
     // to all his followers excluding those he blocks
-    var previousPostExpiresAt = previousPost.get(_k.flareExpiresAtKey);
+    var previousPostExpiresAt = previousPost.get(_k.flareExpiresAtKey, {useMasterKey: true});
     if (previousPostExpiresAt < createdAt) {
       return Activity.saveNewGroupStory(requestUser, post);
     }

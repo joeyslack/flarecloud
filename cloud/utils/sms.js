@@ -141,7 +141,7 @@ var sendSms = function(phoneNumber, fromUser, trackingURL, message, mediaUrl)
   } else if (!_.isUndefined(trackingURL) && !_.isUndefined(fromUser)) {
     //bodyMessage = "Hey, are you using Flare yet? Follow me " + NameUtil.getMentionName(fromUser.get('fullName')) + ". " + trackingURL;
     //bodyMessage = "Add me on Flare! Username: " + NameUtil.getMentionName(fromUser.get('fullName')) + " " + trackingURL;
-    bodyMessage = "Psst...You gotta see my secret group. Add me: " + fromUser.get('fullName') + ". " + trackingURL + " \u231b";
+    bodyMessage = "Psst...You gotta see my secret group. Add me: " + fromUser.get('fullName', {useMasterKey: true}) + ". " + trackingURL + " \u231b";
   }
 
   var token = twilioSid + ':' + twilioToken;
@@ -238,9 +238,9 @@ var constructBranchParams = function(channel, stage, tags, phoneNumber, fromUser
 {
   // If client somehow sends through a null fromUser
   var fromUserId = _.isEmpty(fromUser) ? null : fromUser.id;
-  var fromUserName = _.isEmpty(fromUser) ? null : fromUser.get(_k.userFullNameKey);
-  var fromUserEmail = _.isEmpty(fromUser) ? null : fromUser.get(_k.userEmailKey);
-  var fromUserPhoneNumber = _.isEmpty(fromUser) ? null : fromUser.get(_k.userPhoneNumberKey);
+  var fromUserName = _.isEmpty(fromUser) ? null : fromUser.get(_k.userFullNameKey, {useMasterKey: true});
+  var fromUserEmail = _.isEmpty(fromUser) ? null : fromUser.get(_k.userEmailKey, {useMasterKey: true});
+  var fromUserPhoneNumber = _.isEmpty(fromUser) ? null : fromUser.get(_k.userPhoneNumberKey, {useMasterKey: true});
 
   // Dictionary of value to attach to the Branch metrics tracking URL
   var dataDict = {
@@ -312,7 +312,7 @@ var getTrackURLAndSendSMS = function(phoneNumber, fromUser, params, message, med
     body: JSON.stringify(params)
   }).then(function(httpResponse) {
     json_result = JSON.parse(httpResponse.text);
-    console.log("json.url: " + json_result.url + ", phoneNumber: " + phoneNumber + ", fromUser.get(fullName): " + fromUser.get('fullName'));
+    console.log("json.url: " + json_result.url + ", phoneNumber: " + phoneNumber + ", fromUser.get(fullName): " + fromUser.get('fullName', {useMasterKey: true}));
     // Save an event to the analtyics platform to track invites
     // Analytics.sendReferralEvent(fromUser, json_result.url, params.data);
 
@@ -321,7 +321,7 @@ var getTrackURLAndSendSMS = function(phoneNumber, fromUser, params, message, med
   }).then(function() {
     promise.resolve();
   },function(httpResponse) {
-    console.log("Error getting Branch link: json.url: " + json_result.url + ", phoneNumber: " + phoneNumber + ", fromUser.get(fullName): " + fromUser.get('fullName'));
+    console.log("Error getting Branch link: json.url: " + json_result.url + ", phoneNumber: " + phoneNumber + ", fromUser.get(fullName): " + fromUser.get('fullName', {useMasterKey: true}));
     promise.reject();
   });
 };

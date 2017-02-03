@@ -69,12 +69,12 @@ Parse.Cloud.job("checkForExpiredPosts", function(request, status) {
   query.each(function(user) {
    
     // Send Push notification for expired post
-    var expiresDate = user.get(_k.userFlareExpiresAtKey);
+    var expiresDate = user.get(_k.userFlareExpiresAtKey, {useMasterKey: true});
  
     if (expiresDate < currentDate && expiresDate > currentDateWithInterval) {
       Push.send(_k.pushPayloadActivityTypeExpiredStory, [user]);
  
-      console.log("sent expired flare push notification to user: " + user.get(_k.userUsernameKey));
+      console.log("sent expired flare push notification to user: " + user.get(_k.userUsernameKey, {useMasterKey: true}));
     }
  
   }).then(function() {
@@ -95,12 +95,12 @@ Parse.Cloud.job("migrateUsersLowerCaseEmail", function(request, response) {
   var query = new Parse.Query(Parse.User);
   query.each(function(user) {
    
-    var email = user.get(_k.userEmailKey);
+    var email = user.get(_k.userEmailKey, {useMasterKey: true});
     var lowerCaseEmail = _.isUndefined(email) ? undefined : email.toLowerCase();
 
     user.set(_k.userEmailKey, lowerCaseEmail);
     
-    var username = user.get(_k.userUsernameKey);
+    var username = user.get(_k.userUsernameKey, {useMasterKey: true});
     var lowerCaseUsername = _.isUndefined(username) ? undefined : username.toLowerCase();
 
     user.set(_k.userUsernameKey, lowerCaseUsername);
@@ -126,7 +126,7 @@ Parse.Cloud.job("migrateUsersPhoneNumber", function(request, response) {
   var query = new Parse.Query(Parse.User);
   query.each(function(user) {
    
-    var deprecatedPhoneNumber = user.get(_k.userDeprecatedPhoneNumberKey);
+    var deprecatedPhoneNumber = user.get(_k.userDeprecatedPhoneNumberKey, {useMasterKey: true});
     
     console.log(" deprecatedPhoneNumber: " + deprecatedPhoneNumber);
    
@@ -136,8 +136,8 @@ Parse.Cloud.job("migrateUsersPhoneNumber", function(request, response) {
 
     //deprecatedPhoneNumber = PhoneFormat.cleanPhone(deprecatedPhoneNumber);
 
-    var newPhoneNumberField = user.get(_k.userPhoneNumberKey);
-    var countryCode = user.get(_k.userCountryCodeKey);
+    var newPhoneNumberField = user.get(_k.userPhoneNumberKey, {useMasterKey: true});
+    var countryCode = user.get(_k.userCountryCodeKey, {useMasterKey: true});
 
     if (_.isUndefined(newPhoneNumberField) || _.isNull(newPhoneNumberField) || newPhoneNumberField.length === 0) {
       var normalizedPhoneNumber = PhoneFormat.formatE164("US", deprecatedPhoneNumber);
@@ -145,7 +145,7 @@ Parse.Cloud.job("migrateUsersPhoneNumber", function(request, response) {
       user.set(_k.userPhoneNumberKey, normalizedPhoneNumber);
       user.set(_k.userCountryCodeKey, 1);
       
-      console.log(" name: " + user.get(_k.userFullNameKey) + " new phone number: " + normalizedPhoneNumber);
+      console.log(" name: " + user.get(_k.userFullNameKey, {useMasterKey: true}) + " new phone number: " + normalizedPhoneNumber);
       return user.save(null, {useMasterKey: true});
     }
 
@@ -169,11 +169,11 @@ Parse.Cloud.job("deleteInvalidUsers", function(request, response) {
   // Query for all users
   var query = new Parse.Query(Parse.User);
   query.each(function(user) {
-    var updatedAt = user.get(_k.classUpdatedAt);
+    var updatedAt = user.get(_k.classUpdatedAt, {useMasterKey: true});
 
-    var email = user.get(_k.userEmailKey);
-    var fullName = user.get(_k.userFullNameKey);
-    var channel = user.get(_k.userChannelKey);
+    var email = user.get(_k.userEmailKey, {useMasterKey: true});
+    var fullName = user.get(_k.userFullNameKey, {useMasterKey: true});
+    var channel = user.get(_k.userChannelKey, {useMasterKey: true});
 
     if (updatedAt < currentDateWithInterval && _.isUndefined(email) && _.isUndefined(fullName) && _.isUndefined(channel)) {
       return user.destroy({useMasterKey: true});
