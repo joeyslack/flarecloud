@@ -77,7 +77,7 @@ function getAllNotificationsForUser(requestUser, date) {
 //------------------------------------------------------------------------------
 function sortAndFilterAllNotifications(notifications, date) {
   // Remove null items
-  notifications = _.reject(notifications, function(item) { return _.isEmpty(item) || _.isUndefined(notification) || _.isEmpty(notification) || !notification.hasOwnProperty(_k.activityFlareKey); });
+  notifications = _.reject(notifications, function(item) { return _.isEmpty(item) || _.isUndefined(item) || !item.hasOwnProperty(_k.activityFlareKey) });
 
   // Sort the notifications by createdAt date
   var sorted = _.sortBy(notifications, _k.classCreatedAt);
@@ -89,10 +89,6 @@ function sortAndFilterAllNotifications(notifications, date) {
 
   // Only show the notification activity that has a Flare object that has not expired 
   var sortedNotifications = _.reject(sortedNotifications, function(notification) {    
-    if (_.isUndefined(notification) || _.isEmpty(notification) || !notification.hasOwnProperty(_k.activityFlareKey)) {
-      return true;
-    }
-
     var notificationFlare = notification.get(_k.activityFlareKey);
     if (_.isUndefined(notificationFlare) || _.isEmpty(notificationFlare)) {
       return true;
