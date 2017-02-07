@@ -275,25 +275,24 @@ function processNewActivity(payload)
   // Hydrate the post object
   userQuery.get(requestUserId, {useMasterKey: true}).then(function(user) {
     requestUser = user;
-
-    return activityQuery.get(activityId, {useMasterKey: true}).then(function(activityObject) {
-      if (activityObject) {
-        var activityCreatedAt = activityObject.get(_k.classCreatedAt, {useMasterKey: true});
-        var activityType = activityObject.get(_k.activityTypeKey, {useMasterKey: true});
-        var promises = [];
-
-        _.each(processNewActivityFunctions, function(fnc) {
-          promises.push(fnc(requestUser, activityType, activityObject, activityCreatedAt));
-        });
-
-        return Parse.Promise.when(promises);
-      }
-      else {
-        return;
-      }
-    }
-  
   }).then(function() {
+    return activityQuery.get(activityId, {useMasterKey: true});
+  }).then(function(activityObject) {
+    if (typeof activityObject != "undefined" && activityObject) {
+      var activityCreatedAt = activityObject.get(_k.classCreatedAt, {useMasterKey: true});
+      var activityType = activityObject.get(_k.activityTypeKey, {useMasterKey: true});
+      var promises = [];
+
+      _.each(processNewActivityFunctions, function(fnc) {
+        promises.push(fnc(requestUser, activityType, activityObject, activityCreatedAt));
+      });
+
+      return Parse.Promise.when(promises);
+    }
+    else {
+      return;
+    }
+  }).then(function(success) {
     promise.resolve("activity processed");
   }, function(error) {
     promise.reject(error);
@@ -310,7 +309,7 @@ function processNewActivity(payload)
 //------------------------------------------------------------------------------
 function processNewUserStory (requestUser, type, activityObject, date) 
 {
-  if (type !== _k.activityTypeNewStory || _.isUndefined(requestUser) || _.isUndefined(activityObject) ) {
+  if (type !== _k.activityTypeNewStory || _.isUndefined(requestUser) || _.isUndefined(activityObject)) {
     return Parse.Promise.as();
   }
 
@@ -319,13 +318,13 @@ function processNewUserStory (requestUser, type, activityObject, date)
   
   Follower.getFollowersExcludeUsersWhoBlockMeAndWhoIBlock(requestUser).then(function(followers) {
     requestUsersFollowers = followers;
-  
     var post = activityObject.get(_k.activityFlareKey, {useMasterKey: true});
+    
     return post.fetch();
   }).then(function(postObject) {
     group = postObject.get(_k.flareGroupKey, {useMasterKey: true});
 
-    if(_.isUndefined(group) || group.length === 0) {
+    if (_.isUndefined(group) || group.length === 0) {
       return Push.send(_k.pushPayloadActivityTypeNewUserStory, requestUsersFollowers, requestUser, postObject);
     } else {
       return;
@@ -361,7 +360,7 @@ function processNewGroupStory (requestUser, type, activityObject, date)
   postQuery.equalTo(_k.classObjectId, postObject.id);
   postQuery.include(_k.flareGroupKey); //include the group object
   
-  postQuery.first({useMasterKey: true}).then(function(post){
+  postQuery.first({useMasterKey: true}).then(function(post) {
     var group = !_.isUndefined(post) ? post.get(_k.flareGroupKey, {useMasterKey: true}) : undefined;
     if (!_.isUndefined(group)){ 
       return GroupMembership.sendNotificationToGroup(_k.pushPayloadActivityTypeNewGroupStory, group, post, requestUser);
