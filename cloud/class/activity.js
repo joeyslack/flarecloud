@@ -63,10 +63,9 @@ Parse.Cloud.afterSave('Activity', function(request) {
     // afterSave (and beforeSave) only have 3 seconds to run
     // For any long running process call a background job which is allowed 15 mins
     // of runtime
-    runCloud("jobs", "afterSaveActivityObject", request);
+    //runCloud("jobs", "afterSaveActivityObject", request);
+    afterSaveActivityObject(request);
   }
-
-  return;
 });
 
 //------------------------------------------------------------------------------
@@ -205,8 +204,6 @@ exports.saveNewGroupStory = function(author, post)
 //
 // @params request - the request payload from the caller
 //------------------------------------------------------------------------------
-//    runCloud("jobs", "afterSaveActivityObject", request);
-
 function runCloud(cloudType, cloudFunction, request) {
   cloudType = cloudType == "jobs" ? "jobs" : "functions";
 
@@ -221,13 +218,32 @@ function runCloud(cloudType, cloudFunction, request) {
     body: {
       "request": request
     }
+  }).then(function(httpResponse) {
+    console.log("~runCloud succeeded: " + httpResponse.text);
+  }, function(httpResponse) {
+    console.log("~runCloud: Request failed with response code " + httpResponse.status);
   });
-  // }).then(function(httpResponse) {
-  //   console.log("~runCloud succeeded: " + httpResponse.text);
-  // }, function(httpResponse) {
-  //   console.log("~runCloud: Request failed with response code " + httpResponse.status);
-  // });
 }
+
+function afterSaveActivityObject(request) {
+  Parse.Cloud.httpRequest({
+    url: "https://api.parse.com/1/jobs/afterSaveActivityObject",
+    method: "POST",
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Parse-Application-Id': Parse.applicationId,
+      'X-Parse-Master-Key': Parse.masterKey,
+    },
+    body: {
+      "request": request,
+    }
+  }).then(function(httpResponse) {
+    console.log(" runJobAfterSaveActivityObject succeeded: " + httpResponse.text);
+  }, function(httpResponse) {
+    console.log(" runJobAfterSaveActivityObject: Request failed with response code " + httpResponse.status);
+  }
+}
+  
 
 //------------------------------------------------------------------------------
 // function: processNewActivity
