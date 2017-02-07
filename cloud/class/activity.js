@@ -10,9 +10,9 @@ var Utility = require('../utils/utility.js');
 var Block = require('../api/block.js');
 
 // Override jobs for now
-Parse.Cloud.job = function() {
-  return true;
-}
+// Parse.Cloud.job = function() {
+//   return true;
+// }
 
 //------------------------------------------------------------------------------
 // Local 
@@ -57,23 +57,16 @@ var afterSaveActivityProcessTypes = [
 // @params request -
 //------------------------------------------------------------------------------
 Parse.Cloud.afterSave('Activity', function(request) {
-  var promise = new Parse.Promise();
-  var activityType = request.object.get(_k.activityTypeKey, {useMasterKey: true});
+  var activityType = request.object.get(_k.activityTypeKey);
 
   if (_.indexOf(afterSaveActivityProcessTypes, activityType) !== -1) {
     // afterSave (and beforeSave) only have 3 seconds to run
     // For any long running process call a background job which is allowed 15 mins
     // of runtime
-    //runJobAfterSaveActivityObject(request);
-
-    processNewActivity(request).then(function(){
-      promise.resolve("Process afterSaveActivityObject succeeded");
-    },function(error){
-      promise.reject("Process afterSaveActivityObject error: " + error.message);
-    });
-
-    return promise; 
+    runCloud("jobs", "afterSaveActivityObject", request);
   }
+
+  return;
 });
 
 //------------------------------------------------------------------------------
@@ -212,10 +205,11 @@ exports.saveNewGroupStory = function(author, post)
 //
 // @params request - the request payload from the caller
 //------------------------------------------------------------------------------
-function runJobAfterSaveActivityObject(request)
-{
+function runCloud(cloudType, cloudFunction, request) {
+  cloudType = cloudType == "jobs" ? "jobs" : "functions";
+
   Parse.Cloud.httpRequest({
-    url: "https://api.parse.com/1/jobs/afterSaveActivityObject",
+    url: process.env.SERVER_URL + "/" + cloudType + "/" + cloudFunction,
     method: "POST",
     headers: {
       'Content-Type': 'application/json',
@@ -223,15 +217,13 @@ function runJobAfterSaveActivityObject(request)
       'X-Parse-Master-Key': Parse.masterKey,
     },
     body: {
-      "request": request,
-    },
-    success: function(httpResponse) {
-      console.log(" runJobAfterSaveActivityObject succeeded: " + httpResponse.text);
-    },
-    error: function(httpResponse) {
-      console.log(" runJobAfterSaveActivityObject: Request failed with response code " + httpResponse.status);
+      "request": request
     }
-  });
+  }).then(function(httpResponse) {
+    console.log("~runCloud succeeded: " + httpResponse.text);
+  }, function(httpResponse) {
+    console.log("~runCloud: Request failed with response code " + httpResponse.status);
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -436,7 +428,7 @@ function processComment (requestUser, type, activityObject, date)
       }
     });
 
-    return post.fetch();
+    return post.fetch({useMasterKey: true});
   }).then(function(postObject){
     var comment = activityObject.get(_k.activityContentKey, {useMasterKey: true});
     var postAuthor = postObject.get(_k.flareUserKey, {useMasterKey: true});
@@ -446,7 +438,7 @@ function processComment (requestUser, type, activityObject, date)
       toUsers.push(postAuthor);
     }
 
-    return Push.send(_k.pushPayloadActivityTypeComment, toUsers, requestUser, post, undefined, comment);
+    return Push.send(_k.pushPayloadActivityTypeComment, toUsers, requestUser, post, null, comment);
   }).then(function(){
     promise.resolve();
   },function(error) {

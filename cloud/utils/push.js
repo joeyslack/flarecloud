@@ -17,13 +17,13 @@ var NameUtil = require('../utils/name.js');
 exports.send = function(type, toUsers, fromUser, post, group, text) 
 {
   var promise = new Parse.Promise();
-
+  var payload = alertPayload(type, fromUser, post, group, text);
   var query = new Parse.Query(Parse.Installation);
   query.containedIn('user', toUsers);
 
   Parse.Push.send({
     where: query, // Set our Installation query.
-    data: alertPayload(type, fromUser, post, group, text)
+    data: payload
   }, {useMasterKey: true}).then(function(response) {
     // Push was successful
     //console.log('Sent push.');
@@ -49,7 +49,6 @@ exports.send = function(type, toUsers, fromUser, post, group, text)
 var alertMessage = function(type, fullName, groupName, text) 
 {
   var message = "";
-
   var mentionName = NameUtil.getMentionName(fullName);
 
   switch(type) {
@@ -205,12 +204,12 @@ var alertPayload = function(type, fromUser, post, group, text)
 
   var fromUserName;
   if (!_.isUndefined(fromUser)) {
-    fromUserName = fromUser.get(_k.userFullNameKey, {useMasterKey: true});
+    fromUserName = fromUser.get(_k.userFullNameKey);
   }
 
   var groupName;
-  if (!_.isUndefined(group)) {
-    groupName = group.get(_k.groupNameKey, {useMasterKey: true});
+  if (group && group != null && group.length > 0) {
+    groupName = group.get(_k.groupNameKey);
   }
 
   // Generate the push notification payload

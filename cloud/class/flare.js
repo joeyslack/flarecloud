@@ -412,7 +412,7 @@ function processNewPost (payload)
   }
 
   //var requestParams = payload.params.request;
-  var requestUser = _.isNull(payload.user) ? payload.object.get(_k.flareUserKey, {useMasterKey: true}) : payload.user;
+  var requestUser = _.isNull(payload.user) ? payload.object.get(_k.flareUserKey) : payload.user;
   var requestUserId = requestUser.id;
   var userQuery = new Parse.Query(Parse.User);
 
