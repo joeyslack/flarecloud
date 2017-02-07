@@ -394,17 +394,15 @@ function runJobAfterSavePostObject(request)
 //------------------------------------------------------------------------------
 function processNewPost (payload)
 {
-  var promise = new Parse.Promise();
-
   if (_.isUndefined(payload)) {
-    promise.resolve();
-
-    return promise;
+    return;
   }
 
+  var promise = new Parse.Promise();
   //var requestParams = payload.params.request;
-  var requestUser = _.isNull(payload.user) ? payload.object.get(_k.flareUserKey) : payload.user;
-  var requestUserId = requestUser.id;
+  //var requestUser = _.isNull(requestParams.user) ? requestParams.object.get(_k.flareUserKey) : payload.user;
+  var requestUser = null;
+  var requestUserId = payload.params.request.user.objectId;
   var userQuery = new Parse.Query(Parse.User);
 
   // Hydrate the parse user object
@@ -425,7 +423,7 @@ function processNewPost (payload)
     });
 
     return Parse.Promise.when(promises);
-  }).then(function(){
+  }).then(function(success) {
     promise.resolve();
   }, function(error) {
     promise.reject(error);
