@@ -98,7 +98,6 @@ Parse.Cloud.afterSave('Flare', function(request, response) {
 // @params request - the request payload from the caller
 // @params status - response to send to the caller
 //------------------------------------------------------------------------------
-/*
 Parse.Cloud.job('afterSavePostObject', function(request, status) {
   processNewPost(request).then(function(){
     status.success("Process After Save Post Object succeeded");
@@ -106,7 +105,7 @@ Parse.Cloud.job('afterSavePostObject', function(request, status) {
     status.error("Process After Save Post Object error: " + error.message);
   });
 });
-*/
+
 
 //------------------------------------------------------------------------------
 // function: incrementViews
@@ -376,7 +375,10 @@ function runJobAfterSavePostObject(request)
     headers: {
       'Content-Type': 'application/json',
       'X-Parse-Application-Id': Parse.applicationId,
-      'X-Parse-Master-Key': Parse.masterKey,
+      'X-Parse-Master-Key': Parse.masterKey
+    },
+    body: {
+      "request": request,
     }
   }).then(function(httpResponse) {
     console.log(" runJobAfterSavePostObject succeeded: " + httpResponse.text);
