@@ -262,22 +262,19 @@ function processNewActivity(payload)
   console.log("************");
 
   var promise = new Parse.Promise();
-  var requestUser;
-  var requestParams = payload;
-  var requestUserId = requestParams.object.get(_k.activityFromUserIdStringKey);
+  var requestUser = payload.params.request.user;
+  var requestUserId = payload.params.request.object.get(_k.activityFromUserIdStringKey);
   var userQuery = new Parse.Query(Parse.User);
 
   // Hydrate the parse user object
-  userQuery.get(requestUserId, {useMasterKey: true}).then(function(user) {
-    requestUser = user;
+  //userQuery.get(requestUserId, {useMasterKey: true}).then(function(user) {
     
-    var activityId = requestParams.object.get(_k.classObjectId);
-    var Activity = Parse.Object.extend(_k.activityTableName);
-    var activityQuery = new Parse.Query(Activity);
+  var activityId = payload.params.request.object.get(_k.classObjectId);
+  var Activity = Parse.Object.extend(_k.activityTableName);
+  var activityQuery = new Parse.Query(Activity);
 
     // Hydrate the post object
-    return activityQuery.get(activityId, {useMasterKey: true});
-  }).then(function(activityObject) {
+  activityQuery.get(activityId, {useMasterKey: true}).then(function(activityObject) {
     if (activityObject) {
       var activityCreatedAt = activityObject.get(_k.classCreatedAt, {useMasterKey: true});
       var activityType = activityObject.get(_k.activityTypeKey, {useMasterKey: true});
@@ -289,8 +286,9 @@ function processNewActivity(payload)
 
       return Parse.Promise.when(promises);
     }
-    
-    return true;
+    else {
+      return;
+    }
   }).then(function() {
     promise.resolve("activity processed");
   }, function(error) {
