@@ -256,6 +256,11 @@ function processNewActivity(payload)
     return Parse.Promise.error();
   }
 
+  console.log("----------");
+  console.log(payload);
+  console.log(JSON.stringify(payload));
+  console.log("************");
+
   var promise = new Parse.Promise();
   var requestUser;
   var requestParams = payload;
