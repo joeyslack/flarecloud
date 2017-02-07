@@ -219,11 +219,12 @@ function runCloud(cloudType, cloudFunction, request) {
     body: {
       "request": request
     }
-  }).then(function(httpResponse) {
-    console.log("~runCloud succeeded: " + httpResponse.text);
-  }, function(httpResponse) {
-    console.log("~runCloud: Request failed with response code " + httpResponse.status);
-  }
+  });
+  // }).then(function(httpResponse) {
+  //   console.log("~runCloud succeeded: " + httpResponse.text);
+  // }, function(httpResponse) {
+  //   console.log("~runCloud: Request failed with response code " + httpResponse.status);
+  // });
 }
 
 //------------------------------------------------------------------------------
