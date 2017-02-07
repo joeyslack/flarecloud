@@ -263,13 +263,11 @@ function processNewActivity(payload)
 
   var promise = new Parse.Promise();
   var requestUser = payload.params.request.user;
-  var requestUserId = payload.params.request.object.get(_k.activityFromUserIdStringKey);
-  var userQuery = new Parse.Query(Parse.User);
-
+  var requestUserId = payload.params.request.object[_k.activityFromUserIdStringKey];
+  //var userQuery = new Parse.Query(Parse.User);
   // Hydrate the parse user object
-  //userQuery.get(requestUserId, {useMasterKey: true}).then(function(user) {
-    
-  var activityId = payload.params.request.object.get(_k.classObjectId);
+  //userQuery.get(requestUserId, {useMasterKey: true}).then(function(user) { 
+  var activityId = payload.params.request.object[_k.classObjectId];
   var Activity = Parse.Object.extend(_k.activityTableName);
   var activityQuery = new Parse.Query(Activity);
 
