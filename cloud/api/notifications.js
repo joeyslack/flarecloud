@@ -77,10 +77,10 @@ function getAllNotificationsForUser(requestUser, date) {
 //------------------------------------------------------------------------------
 function sortAndFilterAllNotifications(notifications, date) {
   // Remove null items
-  //notifications = _.reject(notifications, function(item) { return _.isEmpty(item); });
+  notifications = _.reject(notifications, function(item) { return _.isEmpty(item) || _.isUndefined(notification) || _.isEmpty(notification) || !notification.hasOwnProperty(_k.activityFlareKey); });
 
   // Sort the notifications by createdAt date
-  // var sorted = _.sortBy(notifications, _k.classCreatedAt);
+  var sorted = _.sortBy(notifications, _k.classCreatedAt);
 
   // Remove any duplicate notifications
   var sortedNotifications = _.uniq(notifications, function(item) { 
@@ -152,7 +152,7 @@ function getHeartsNotifications(requestUser, date) {
   activityQuery.greaterThanOrEqualTo(_k.classCreatedAt, yesterday);
 
   // Only get notifications for people you are following
-  //activityQuery.containedIn(_k.activityFromUserKey, followingUsers);
+  // activityQuery.containedIn(_k.activityFromUserKey, followingUsers);
 
   // Include keys
   activityQuery.include(_k.activityFlareKey);
@@ -161,7 +161,7 @@ function getHeartsNotifications(requestUser, date) {
   activityQuery.include(_k.activityFlareKey + "." + _k.flareGroupKey);
 
   activityQuery.descending(_k.classCreatedAt);
-  activityQuery.limit(100);
+  activityQuery.limit(50);
 
   activityQuery.find({useMasterKey: true}).then(function(notifications) {
     promise.resolve(notifications);
@@ -486,7 +486,7 @@ function commentNotificationsForMyPostsQuery(requestUser, date) {
   activityQuery.include(_k.activityFlareKey + "." + _k.flareGroupKey);
 
   activityQuery.descending(_k.classCreatedAt);
-  activityQuery.limit(100);
+  activityQuery.limit(50);
 
   return activityQuery;
 }
@@ -512,7 +512,7 @@ function commentNotificationsForPostsUserFollowsQuery(requestUser, date) {
   // 
   followedPostsQuery.equalTo(_k.activityFromUserKey, requestUser);
   followedPostsQuery.equalTo(_k.activityIsFlareCreationKey, false);
-  followedPostsQuery.limit(100);
+  followedPostsQuery.limit(50);
 
   // Other Commenters on the Posts that the requested user has commented on
   var otherCommentersPostsQuery = new Parse.Query(ActivityClass);
@@ -529,7 +529,7 @@ function commentNotificationsForPostsUserFollowsQuery(requestUser, date) {
   otherCommentersPostsQuery.include(_k.activityFlareKey + "." + _k.flareGroupKey);
 
   otherCommentersPostsQuery.descending(_k.classCreatedAt);
-  otherCommentersPostsQuery.limit(100);
+  otherCommentersPostsQuery.limit(50);
 
   return otherCommentersPostsQuery;
 }
@@ -562,7 +562,7 @@ function newStoryNotificationsQuery(requestUser, followingUsers, date) {
   activityQuery.include(_k.activityFlareKey + "." + _k.flareGroupKey);
 
   activityQuery.descending(_k.classCreatedAt);
-  activityQuery.limit(100);
+  activityQuery.limit(50);
 
   return activityQuery;
 }
@@ -574,7 +574,6 @@ function newStoryNotificationsQuery(requestUser, followingUsers, date) {
 // @params date - 
 //------------------------------------------------------------------------------
 function mentionNotificationsQuery(requestUser, date, followingUsers) {
-
   var ActivityClass = Parse.Object.extend(_k.activityTableName);
   var activityQuery = new Parse.Query(ActivityClass);
 
@@ -600,7 +599,7 @@ function mentionNotificationsQuery(requestUser, date, followingUsers) {
   activityQuery.include(_k.activityFlareKey + "." + _k.flareGroupKey);
 
   activityQuery.descending(_k.classCreatedAt);
-  activityQuery.limit(100);
+  activityQuery.limit(50);
 
   return activityQuery;
 }
@@ -634,7 +633,7 @@ function userMentionedNotificationsQuery(requestUser, date) {
   activityQuery.include(_k.activityFlareKey + "." + _k.flareGroupKey);
   
   activityQuery.descending(_k.classCreatedAt);
-  activityQuery.limit(100);
+  activityQuery.limit(50);
 
   return activityQuery;
 }
@@ -647,7 +646,6 @@ function userMentionedNotificationsQuery(requestUser, date) {
 // @params mentionActivities - 
 //------------------------------------------------------------------------------
 function viewedMentionNotificationsQuery(requestUser, date, mentionActivities) {
-
   var ActivityClass = Parse.Object.extend(_k.activityTableName);
   var activityQuery = new Parse.Query(ActivityClass);
 
@@ -668,7 +666,7 @@ function viewedMentionNotificationsQuery(requestUser, date, mentionActivities) {
   activityQuery.include(_k.activityFlareKey + "." + _k.flareGroupKey);
   
   activityQuery.descending(_k.classCreatedAt);
-  activityQuery.limit(100);
+  activityQuery.limit(50);
 
   // Viewed the mention
   var mentionFlares = [];
@@ -688,7 +686,6 @@ function viewedMentionNotificationsQuery(requestUser, date, mentionActivities) {
 // @params date - 
 //------------------------------------------------------------------------------
 function followedNotificationsQuery(requestUser, date, followingUsers) {
-
   var ActivityClass = Parse.Object.extend(_k.activityTableName);
   var activityQuery = new Parse.Query(ActivityClass);
 
@@ -711,7 +708,7 @@ function followedNotificationsQuery(requestUser, date, followingUsers) {
   activityQuery.include(_k.activityFromUserKey);
 
   activityQuery.descending(_k.classCreatedAt);
-  activityQuery.limit(100);
+  activityQuery.limit(50);
 
   return activityQuery;
 }
@@ -723,7 +720,6 @@ function followedNotificationsQuery(requestUser, date, followingUsers) {
 // @params date - 
 //------------------------------------------------------------------------------
 function followRequestNotificationsQuery(requestUser, date, followingUsers) {
-
   var ActivityClass = Parse.Object.extend(_k.activityTableName);
   var activityQuery = new Parse.Query(ActivityClass);
 
@@ -748,9 +744,8 @@ function followRequestNotificationsQuery(requestUser, date, followingUsers) {
 
   // Include kys
   activityQuery.include(_k.activityFromUserKey);
-
   activityQuery.descending(_k.classCreatedAt);
-  activityQuery.limit(100);
+  activityQuery.limit(50);
 
   return activityQuery;
 }
