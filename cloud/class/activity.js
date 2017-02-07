@@ -241,7 +241,7 @@ function afterSaveActivityObject(request) {
     console.log(" runJobAfterSaveActivityObject succeeded: " + httpResponse.text);
   }, function(httpResponse) {
     console.log(" runJobAfterSaveActivityObject: Request failed with response code " + httpResponse.status);
-  }
+  });
 }
   
 
