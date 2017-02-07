@@ -4,9 +4,9 @@ var DateUtil = require('../utils/date.js');
 var Utility = require('../utils/utility.js');
 
 // Override jobs for now
-Parse.Cloud.job = function() {
+/*Parse.Cloud.job = function() {
   return true;
-}
+}*/
 
 //------------------------------------------------------------------------------
 // Cloud Code
@@ -39,10 +39,9 @@ Parse.Cloud.job("deleteExpiredFiles", function(request, status) {
   postQuery.include(_k.flareUserKey);
 
   postQuery.each(function(post) {
-  
     //console.log("DELETE: " + post.id + " fromUser: " + post.get(_k.flareUserKey).get(_k.userFullNameKey) + " expirestAt: " + post.get(_k.flareExpiresAtKey));
     // Get the PFFile names for 
-    var baseURL = "https://api.parse.com/1/files/";
+    var baseURL = process.env.SERVER_URL + "/files/";
     var imageURL = post.get(_k.flareImageKey, {useMasterKey: true});
     var thumbnailURL = post.get(_k.flareThumbnailKey, {useMasterKey: true});
     var videoURL = post.get(_k.flareVideoKey, {useMasterKey: true});

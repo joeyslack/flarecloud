@@ -205,6 +205,8 @@ exports.saveNewGroupStory = function(author, post)
 //
 // @params request - the request payload from the caller
 //------------------------------------------------------------------------------
+//    runCloud("jobs", "afterSaveActivityObject", request);
+
 function runCloud(cloudType, cloudFunction, request) {
   cloudType = cloudType == "jobs" ? "jobs" : "functions";
 

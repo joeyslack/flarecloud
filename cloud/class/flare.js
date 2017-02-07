@@ -7,9 +7,9 @@ var Utility = require('../utils/utility.js');
 var Push = require('../utils/push.js');
 
 // Override jobs for now
-Parse.Cloud.job = function() {
+/*Parse.Cloud.job = function() {
   return true;
-}
+}*/
 
 //------------------------------------------------------------------------------
 // Local
@@ -89,13 +89,7 @@ Parse.Cloud.afterSave('Flare', function(request, response) {
   // afterSave (and beforeSave) only have 3 seconds to run
   // For any long running process call a background job which is allowed 15 mins
   // of runtime
-  //runJobAfterSavePostObject(request);
-
-  processNewPost(request).then(function() {
-    response.success("Process After Save Post Object succeeded");
-  },function(error){
-    response.error("Process After Save Post Object error: " + error.message);
-  });
+  runJobAfterSavePostObject(request);
 });
 
 //------------------------------------------------------------------------------
@@ -377,22 +371,17 @@ exports.getPreviousPostByUser = function(requestUser, postCreatedAt) {
 function runJobAfterSavePostObject(request)
 {
   Parse.Cloud.httpRequest({
-    url: "https://api.parse.com/1/jobs/afterSavePostObject",
+    url: process.env.SERVER_URL + "/jobs/afterSavePostObject",
     method: "POST",
     headers: {
       'Content-Type': 'application/json',
       'X-Parse-Application-Id': Parse.applicationId,
       'X-Parse-Master-Key': Parse.masterKey,
-    },
-    body: {
-      "request": request
-    },
-    success: function(httpResponse) {
-      console.log(" runJobAfterSavePostObject succeeded: " + httpResponse.text);
-    },
-    error: function(httpResponse) {
-      console.log(" runJobAfterSavePostObject: Request failed with response code " + httpResponse.status);
     }
+  }).then(function(httpResponse) {
+    console.log(" runJobAfterSavePostObject succeeded: " + httpResponse.text);
+  }, function(httpResponse) {
+    console.log(" runJobAfterSavePostObject: Request failed with response code " + httpResponse.status);
   });
 }
 

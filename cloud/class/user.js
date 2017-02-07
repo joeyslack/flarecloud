@@ -6,9 +6,9 @@ var Utility = require('../utils/utility.js');
 var PhoneFormat = require('../lib/PhoneFormat.js');
 
 // Override jobs for now
-Parse.Cloud.job = function() {
+/*Parse.Cloud.job = function() {
   return true;
-}
+}*/
 
 //------------------------------------------------------------------------------
 // Cloud Code
@@ -21,13 +21,10 @@ Parse.Cloud.job = function() {
 // @params request - the request payload from the caller
 //------------------------------------------------------------------------------
 Parse.Cloud.define("processNewUserSignUp", function(request, response) {
-
   // afterSave (and beforeSave) only have 3 seconds to run
   // For any long running process call a background job which is allowed 15 mins
   // of runtime
   runJobNewUserObject(request);
-
-  response.success();
 });
 
 //------------------------------------------------------------------------------
@@ -248,22 +245,17 @@ function runJobNewUserObject(request)
 {
   console.log(" runJobNewUserObject: " + JSON.stringify(request));
   Parse.Cloud.httpRequest({
-    url: "https://api.parse.com/1/jobs/processNewUserObjectJob",
+    url: process.env.SERVER_URL + "/jobs/processNewUserObjectJob",
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       "X-Parse-Application-Id": Parse.applicationId,
       "X-Parse-Master-Key": Parse.masterKey,
-    },
-    body: {
-      "request": request
-    },
-    success: function(httpResponse) {
-      console.log(" runJobNewUserObject succeeded: " + httpResponse.text);
-    },
-    error: function(httpResponse) {
-      console.log(" runJobNewUserObject: Request failed with response code " + httpResponse.status);
     }
+  }).then(function(httpResponse) {
+    console.log(" runJobNewUserObject succeeded: " + httpResponse.text);
+  }, function(httpResponse) {
+    console.log(" runJobNewUserObject: Request failed with response code " + httpResponse.status);
   });
 }
 
