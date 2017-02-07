@@ -204,6 +204,25 @@ exports.saveNewGroupStory = function(author, post)
 //
 // @params request - the request payload from the caller
 //------------------------------------------------------------------------------
+function afterSaveActivityObject(request) {
+  Parse.Cloud.httpRequest({
+    url: process.env.SERVER_URL + "/jobs/afterSaveActivityObject",
+    method: "POST",
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Parse-Application-Id': Parse.applicationId,
+      'X-Parse-Master-Key': Parse.masterKey,
+    },
+    body: {
+      "request": request,
+    }
+  }).then(function(httpResponse) {
+    console.log(" runJobAfterSaveActivityObject succeeded: " + httpResponse.text);
+  }, function(httpResponse) {
+    console.log(" runJobAfterSaveActivityObject: Request failed with response code " + httpResponse.status);
+  });
+}
+
 function runCloud(cloudType, cloudFunction, request) {
   cloudType = cloudType == "jobs" ? "jobs" : "functions";
 
@@ -223,27 +242,7 @@ function runCloud(cloudType, cloudFunction, request) {
   }, function(httpResponse) {
     console.log("~runCloud: Request failed with response code " + httpResponse.status);
   });
-}
-
-function afterSaveActivityObject(request) {
-  Parse.Cloud.httpRequest({
-    url: process.env.SERVER_URL + "/jobs/afterSaveActivityObject",
-    method: "POST",
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Parse-Application-Id': Parse.applicationId,
-      'X-Parse-Master-Key': Parse.masterKey,
-    },
-    body: {
-      "request": request,
-    }
-  }).then(function(httpResponse) {
-    console.log(" runJobAfterSaveActivityObject succeeded: " + httpResponse.text);
-  }, function(httpResponse) {
-    console.log(" runJobAfterSaveActivityObject: Request failed with response code " + httpResponse.status);
-  });
-}
-  
+}  
 
 //------------------------------------------------------------------------------
 // function: processNewActivity
