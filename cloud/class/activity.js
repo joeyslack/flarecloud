@@ -264,20 +264,19 @@ function processNewActivity(payload)
   var promise = new Parse.Promise();
   var requestUser;
   var requestUserId = payload.params.request.object[_k.activityFromUserIdStringKey];
-  //var userQuery = new Parse.Query(Parse.User);
-  // Hydrate the parse user object
-  //userQuery.get(requestUserId, {useMasterKey: true}).then(function(user) { 
+  var userQuery = new Parse.Query(Parse.User);
   var activityId = payload.params.request.object[_k.classObjectId];
   var Activity = Parse.Object.extend(_k.activityTableName);
   var activityQuery = new Parse.Query(Activity);
 
-  
-  // Hydrate the post object
+  // Hydrate the parse user object
   userQuery.get(requestUserId, {useMasterKey: true}).then(function(user) {
     requestUser = user;
   }).then(function() {
+    // Get related activity item
     return activityQuery.get(activityId, {useMasterKey: true});
   }).then(function(activityObject) {
+    // Check activity types & execute a group of defined functions
     if (typeof activityObject != "undefined" && activityObject) {
       var activityCreatedAt = activityObject.get(_k.classCreatedAt, {useMasterKey: true});
       var activityType = activityObject.get(_k.activityTypeKey, {useMasterKey: true});
