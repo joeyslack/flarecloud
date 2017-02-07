@@ -227,7 +227,7 @@ function runCloud(cloudType, cloudFunction, request) {
 
 function afterSaveActivityObject(request) {
   Parse.Cloud.httpRequest({
-    url: "https://api.parse.com/1/jobs/afterSaveActivityObject",
+    url: process.env.SERVER_URL + "/jobs/afterSaveActivityObject",
     method: "POST",
     headers: {
       'Content-Type': 'application/json',
